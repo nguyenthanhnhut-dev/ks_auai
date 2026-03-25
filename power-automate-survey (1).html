@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khảo Sát Power Automate & AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --text: #f0f4ff;
+    --text-muted: #8899bb;
+    --border: rgba(0,212,255,0.15);
+    --card-glow: 0 0 40px rgba(0,212,255,0.08);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 { width:500px; height:500px; background:rgba(0,212,255,0.07); top:-100px; right:-100px; }
+  .orb2 { width:400px; height:400px; background:rgba(124,58,237,0.07); bottom:-100px; left:-100px; }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---- LANDING ---- */
+  #landing { animation: fadeUp 0.6s ease both; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 28px;
+  }
+  .badge-dot { width:6px; height:6px; background:var(--accent); border-radius:50%; animation: pulse 2s infinite; }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 60%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 40px;
+    max-width: 580px;
+  }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .level-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 16px;
+  }
+  .level-card.lv1::before { background: linear-gradient(135deg, rgba(16,185,129,0.1), transparent); }
+  .level-card.lv2::before { background: linear-gradient(135deg, rgba(0,212,255,0.1), transparent); }
+  .level-card.lv3::before { background: linear-gradient(135deg, rgba(124,58,237,0.1), transparent); }
+  .level-card:hover::before { opacity: 1; }
+  .level-card:hover { transform: translateY(-4px); box-shadow: var(--card-glow); border-color: rgba(0,212,255,0.3); }
+
+  .level-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+  .level-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .level-sub { font-size: 0.8rem; color: var(--text-muted); }
+  .level-tag {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.72rem;
+    font-family: 'Space Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 700;
+  }
+  .lv1 .level-tag { background: rgba(16,185,129,0.15); color: var(--accent3); }
+  .lv2 .level-tag { background: rgba(0,212,255,0.15); color: var(--accent); }
+  .lv3 .level-tag { background: rgba(124,58,237,0.15); color: #a78bfa; }
+
+  /* ---- FORM SECTION ---- */
+  #survey-section { display: none; animation: fadeUp 0.5s ease both; }
+
+  .survey-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .level-pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 100px;
+  }
+
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border-radius: 100px;
+    height: 4px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 100px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* Question card */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    margin-bottom: 20px;
+    display: none;
+    animation: fadeUp 0.4s ease both;
+    box-shadow: var(--card-glow);
+  }
+  .q-card.active { display: block; }
+
+  /* Name field card always shown */
+  .q-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    margin-bottom: 12px;
+    letter-spacing: 0.08em;
+  }
+  .q-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+
+  /* Name input */
+  .name-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 1rem;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .name-input:focus { border-color: var(--accent); }
+  .name-input::placeholder { color: var(--text-muted); }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .option:hover { border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05); }
+  .option.selected { border-color: var(--accent); background: rgba(0,212,255,0.08); color: #fff; }
+  .option.selected .opt-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .opt-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--text-muted);
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.2s;
+  }
+  .option.multi.selected .opt-dot { border-radius: 4px; }
+
+  /* Text area option */
+  .text-answer {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 0.95rem;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    color: var(--text);
+    outline: none;
+    min-height: 100px;
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+  .text-answer:focus { border-color: var(--accent); }
+  .text-answer::placeholder { color: var(--text-muted); }
+
+  /* Navigation */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+    gap: 12px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    border-radius: 12px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { border-color: rgba(0,212,255,0.4); color: var(--text); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 0 20px rgba(0,212,255,0.2);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(0,212,255,0.3); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ---- EMAIL GATE ---- */
+  #email-section {
+    display: none;
+    animation: fadeUp 0.5s ease both;
+  }
+  .email-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 40px;
+    text-align: center;
+    box-shadow: var(--card-glow);
+  }
+  .email-icon { font-size: 3rem; margin-bottom: 20px; }
+  .email-card h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 12px; }
+  .email-card p { color: var(--text-muted); line-height: 1.7; margin-bottom: 32px; }
+  .email-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 1rem;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    color: var(--text);
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .email-input:focus { border-color: var(--accent); }
+  .email-input::placeholder { color: var(--text-muted); }
+  .skip-link {
+    display: block;
+    margin-top: 16px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  .skip-link:hover { opacity: 1; }
+
+  /* ---- RESULT ---- */
+  #result-section { display: none; animation: fadeUp 0.5s ease both; }
+
+  .result-header { text-align: center; margin-bottom: 40px; }
+  .result-header h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+  .result-header p { color: var(--text-muted); }
+
+  .score-ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+  .score-ring-svg { width: 180px; height: 180px; transform: rotate(-90deg); }
+  .score-ring-bg { fill: none; stroke: var(--surface2); stroke-width: 12; }
+  .score-ring-fill { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
+  .score-center {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-ring-container { position: relative; width: 180px; height: 180px; }
+  .score-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .score-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .result-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+  .result-stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .result-stat-label { font-size: 0.8rem; color: var(--text-muted); }
+  .stat-green .result-stat-num { color: var(--accent3); }
+  .stat-blue .result-stat-num { color: var(--accent); }
+  .stat-purple .result-stat-num { color: #a78bfa; }
+
+  .result-level-badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .rlb-icon { font-size: 2.5rem; }
+  .rlb-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .rlb-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+
+  .answer-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+  .answer-summary h3 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; color: var(--accent); font-family: 'Space Mono', monospace; letter-spacing: 0.05em; }
+  .answer-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .answer-item:last-child { border-bottom: none; }
+  .answer-q { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+  .answer-a { font-size: 0.9rem; font-weight: 500; }
+
+  .result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    flex: 1;
+    justify-content: center;
+    min-width: 140px;
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---- ANIMATIONS ---- */
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(20px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; }
+    50% { opacity:0.4; }
+  }
+
+  /* Radar chart */
+  .radar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-glow);
+  }
+  .radar-wrap h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .radar-container {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .radar-svg-wrap { flex: 0 0 auto; display: flex; justify-content: center; }
+  .radar-legend { flex: 1; min-width: 180px; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-name { color: var(--text-muted); flex: 1; }
+  .legend-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* Mobile */
+  @media(max-width: 600px) {
+    .email-card { padding: 32px 24px; }
+    .q-card { padding: 24px; }
+    .result-level-badge { flex-direction: column; text-align: center; }
+    .radar-container { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="container">
+
+  <!-- LANDING -->
+  <div id="landing">
+    <div class="badge"><span class="badge-dot"></span>POWER AUTOMATE × AI ASSESSMENT</div>
+    <h1>Bạn đang ở đâu trên hành trình tự động hóa?</h1>
+    <p class="subtitle">Bộ khảo sát 10 câu hỏi giúp đánh giá mức độ hiểu biết về Power Automate & AI. Khám phá điểm mạnh và lộ trình phát triển phù hợp với bạn.</p>
+    <div class="level-grid">
+      <div class="level-card lv1" onclick="startSurvey('beginner')">
+        <span class="level-icon">🌱</span>
+        <div class="level-title">Người Mới Bắt Đầu</div>
+        <div class="level-sub">Chưa hoặc ít dùng Automation</div>
+        <span class="level-tag">BEGINNER</span>
+      </div>
+      <div class="level-card lv2" onclick="startSurvey('intermediate')">
+        <span class="level-icon">⚙️</span>
+        <div class="level-title">Đang Khám Phá</div>
+        <div class="level-sub">Đã thử dùng một vài công cụ AI</div>
+        <span class="level-tag">INTERMEDIATE</span>
+      </div>
+      <div class="level-card lv3" onclick="startSurvey('advanced')">
+        <span class="level-icon">🚀</span>
+        <div class="level-title">Đang Ứng Dụng</div>
+        <div class="level-sub">Đã tích hợp AI vào quy trình làm việc</div>
+        <span class="level-tag">ADVANCED</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SURVEY -->
+  <div id="survey-section">
+    <div class="survey-header">
+      <div class="level-pill" id="level-pill"></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill"></div></div>
+      <div class="progress-label" id="prog-label">0 / 11</div>
+    </div>
+
+    <!-- Q0: Họ và tên -->
+    <div class="q-card active" data-q="0">
+      <div class="q-number">THÔNG TIN</div>
+      <div class="q-text">Họ và tên của Anh/Chị là gì?</div>
+      <input class="name-input" type="text" id="name-input" placeholder="Nhập họ và tên...">
+    </div>
+
+    <!-- Q1 -->
+    <div class="q-card" data-q="1">
+      <div class="q-number">CÂU 1 / 10</div>
+      <div class="q-text">Anh/Chị tự đánh giá mức độ hiểu biết của mình về Automation (MS Power Automate)?</div>
+      <div class="options" data-type="single">
+        <div class="option" data-val="1" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Chưa từng nghe đến</div>
+        <div class="option" data-val="2" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Đã nghe nhưng chưa thử</div>
+        <div class="option" data-val="3" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Đã thử một vài lần</div>
+        <div class="option" data-val="4" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Dùng thường xuyên và hiểu rõ</div>
+        <div class="option" data-val="5" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Có thể hướng dẫn người khác</div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-card" data-q="2">
+      <div class="q-number">CÂU 2 / 10</div>
+      <div class="q-text">Anh/Chị đã từng sử dụng các công cụ AI nào dưới đây để hỗ trợ công việc? <small style="color:var(--text-muted);font-size:0.8rem;">(Chọn nhiều đáp án)</small></div>
+      <div class="options" data-type="multi">
+        <div class="option multi" data-val="chatgpt" onclick="selectOpt(this,2)"><span class="opt-dot"></span>ChatGPT</div>
+        <div class="option multi" data-val="copilot" onclick="selectOpt(this,2)"><span class="opt-dot"></span>Microsoft Copilot</div>
+        <div class="option multi" data-val="gemini" onclick="selectOpt(this,2)"><span class="opt-dot"></span>Google Gemini</div>
+        <div class="option multi" data-val="claude" onclick="selectOpt(this,2)"><span class="opt-dot"></span>Claude (Anthropic)</div>
+        <div class="option multi" data-val="none" onclick="selectOpt(this,2)"><span class="opt-dot"></span>Chưa dùng công cụ AI nào</div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-card" data-q="3">
+      <div class="q-number">CÂU 3 / 10</div>
+      <div class="q-text">Trong 1 tháng qua, tần suất Anh/Chị sử dụng AI để giải quyết công việc là bao nhiêu?</div>
+      <div class="options" data-type="single">
+        <div class="option" data-val="never" onclick="selectOpt(this,3)"><span class="opt-dot"></span>Chưa bao giờ dùng</div>
+        <div class="option" data-val="rare" onclick="selectOpt(this,3)"><span class="opt-dot"></span>1–2 lần/tháng</div>
+        <div class="option" data-val="weekly" onclick="selectOpt(this,3)"><span class="opt-dot"></span>Vài lần/tuần</div>
+        <div class="option" data-val="daily" onclick="selectOpt(this,3)"><span class="opt-dot"></span>Mỗi ngày</div>
+        <div class="option" data-val="always" onclick="selectOpt(this,3)"><span class="opt-dot"></span>Liên tục — AI là công cụ chính của tôi</div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="q-card" data-q="4">
+      <div class="q-number">CÂU 4 / 10</div>
+      <div class="q-text">Anh/Chị đã từng sử dụng Microsoft Power Automate chưa?</div>
+      <div class="options" data-type="single">
+        <div class="option" data-val="no" onclick="selectOpt(this,4)"><span class="opt-dot"></span>Chưa bao giờ</div>
+        <div class="option" data-val="heard" onclick="selectOpt(this,4)"><span class="opt-dot"></span>Biết tên nhưng chưa dùng</div>
+        <div class="option" data-val="tried" onclick="selectOpt(this,4)"><span class="opt-dot"></span>Đã thử nhưng không thành công</div>
+        <div class="option" data-val="basic" onclick="selectOpt(this,4)"><span class="opt-dot"></span>Đang dùng ở mức cơ bản</div>
+        <div class="option" data-val="advanced" onclick="selectOpt(this,4)"><span class="opt-dot"></span>Đang dùng ở mức nâng cao</div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="q-card" data-q="5">
+      <div class="q-number">CÂU 5 / 10</div>
+      <div class="q-text">Công việc nào chiếm nhiều thời gian lặp đi lặp lại nhất của Anh/Chị hàng ngày?</div>
+      <textarea class="text-answer" id="q5-text" placeholder="Ví dụ: nhập dữ liệu Excel, gửi email báo cáo, sao chép thông tin giữa các hệ thống..."></textarea>
+    </div>
+
+    <!-- Q6 -->
+    <div class="q-card" data-q="6">
+      <div class="q-number">CÂU 6 / 10</div>
+      <div class="q-text">Anh/Chị đã từng thử kết hợp AI vào một luồng tự động hóa (Automation) chưa?</div>
+      <div class="options" data-type="single">
+        <div class="option" data-val="no" onclick="selectOpt(this,6)"><span class="opt-dot"></span>Chưa bao giờ nghĩ đến</div>
+        <div class="option" data-val="thinking" onclick="selectOpt(this,6)"><span class="opt-dot"></span>Đang tìm hiểu, chưa thực hiện</div>
+        <div class="option" data-val="tried" onclick="selectOpt(this,6)"><span class="opt-dot"></span>Đã thử nhưng chưa thành công</div>
+        <div class="option" data-val="yes" onclick="selectOpt(this,6)"><span class="opt-dot"></span>Có, đang vận hành thực tế</div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="q-card" data-q="7">
+      <div class="q-number">CÂU 7 / 10</div>
+      <div class="q-text">Khi gặp một tác vụ thủ công mất 2 giờ để làm mỗi ngày, tư duy đầu tiên của Anh/Chị là gì?</div>
+      <div class="options" data-type="single">
+        <div class="option" data-val="a" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Làm thủ công vì quen rồi</div>
+        <div class="option" data-val="b" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nhờ người khác làm giúp</div>
+        <div class="option" data-val="c" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Tìm template hoặc công cụ có sẵn</div>
+        <div class="option" data-val="d" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nghĩ ngay đến việc tự động hóa bằng Power Automate / AI</div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="q-card" data-q="8">
+      <div class="q-number">CÂU 8 / 10</div>
+      <div class="q-text">Rào cản lớn nhất khiến Anh/Chị chưa ứng dụng Automation hiệu quả là gì?</div>
+      <div class="options" data-type="single">
+        <div class="option" data-val="skill" onclick="selectOpt(this,8)"><span class="opt-dot"></span>Thiếu kỹ năng kỹ thuật</div>
+        <div class="option" data-val="time" onclick="selectOpt(this,8)"><span class="opt-dot"></span>Không có thời gian để học</div>
+        <div class="option" data-val="trust" onclick="selectOpt(this,8)"><span class="opt-dot"></span>Không chắc kết quả đủ tin cậy</div>
+        <div class="option" data-val="tool" onclick="selectOpt(this,8)"><span class="opt-dot"></span>Không biết bắt đầu từ đâu / chọn công cụ nào</div>
+        <div class="option" data-val="none" onclick="selectOpt(this,8)"><span class="opt-dot"></span>Không có rào cản, đang ứng dụng tốt</div>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="q-card" data-q="9">
+      <div class="q-number">CÂU 9 / 10</div>
+      <div class="q-text">Anh/Chị đã dùng AI cho những việc nào? <small style="color:var(--text-muted);font-size:0.8rem;">(Chọn nhiều đáp án)</small></div>
+      <div class="options" data-type="multi">
+        <div class="option multi" data-val="write" onclick="selectOpt(this,9)"><span class="opt-dot"></span>Viết email / nội dung</div>
+        <div class="option multi" data-val="data" onclick="selectOpt(this,9)"><span class="opt-dot"></span>Phân tích dữ liệu / Excel</div>
+        <div class="option multi" data-val="code" onclick="selectOpt(this,9)"><span class="opt-dot"></span>Viết code / công thức</div>
+        <div class="option multi" data-val="search" onclick="selectOpt(this,9)"><span class="opt-dot"></span>Tìm kiếm thông tin / nghiên cứu</div>
+        <div class="option multi" data-val="idea" onclick="selectOpt(this,9)"><span class="opt-dot"></span>Brainstorm ý tưởng</div>
+        <div class="option multi" data-val="none" onclick="selectOpt(this,9)"><span class="opt-dot"></span>Chưa dùng</div>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="q-card" data-q="10">
+      <div class="q-number">CÂU 10 / 10</div>
+      <div class="q-text">Anh/Chị có dùng prompt template (khung cố định) để đảm bảo output ổn định không?</div>
+      <div class="options" data-type="single">
+        <div class="option" data-val="no_know" onclick="selectOpt(this,10)"><span class="opt-dot"></span>Không biết prompt template là gì</div>
+        <div class="option" data-val="no_use" onclick="selectOpt(this,10)"><span class="opt-dot"></span>Biết nhưng chưa dùng</div>
+        <div class="option" data-val="sometimes" onclick="selectOpt(this,10)"><span class="opt-dot"></span>Đôi khi dùng</div>
+        <div class="option" data-val="always" onclick="selectOpt(this,10)"><span class="opt-dot"></span>Luôn dùng — có hệ thống prompt riêng</div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="btn-back" onclick="prevQ()">← Quay lại</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()">Tiếp theo →</button>
+    </div>
+  </div>
+
+  <!-- EMAIL -->
+  <div id="email-section">
+    <div class="email-card">
+      <div class="email-icon">📬</div>
+      <h2>Nhận Kết Quả Qua Email</h2>
+      <p>Bạn muốn nhận bản tóm tắt kết quả đánh giá và lộ trình phát triển cá nhân về Power Automate & AI không?</p>
+      <input class="email-input" type="email" id="email-input" placeholder="Địa chỉ email của bạn...">
+      <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="submitEmail()">Gửi Kết Quả Cho Tôi ✉️</button>
+      <span class="skip-link" onclick="sendToGoogleSheet();showResult()">Bỏ qua, tôi chỉ muốn xem kết quả</span>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result-section">
+    <div class="result-header">
+      <h2>Kết Quả Đánh Giá Của Bạn</h2>
+      <p id="result-name-display"></p>
+    </div>
+
+    <div class="score-ring-wrap">
+      <div class="score-ring-container">
+        <svg class="score-ring-svg" viewBox="0 0 120 120">
+          <circle class="score-ring-bg" cx="60" cy="60" r="50"/>
+          <circle class="score-ring-fill" id="ring-fill" cx="60" cy="60" r="50" stroke-dasharray="314" stroke-dashoffset="314"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-num" id="score-num">0</div>
+          <div class="score-label">/ 100 điểm</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-stat stat-green">
+        <div class="result-stat-num" id="stat-level">—</div>
+        <div class="result-stat-label">Cấp độ</div>
+      </div>
+      <div class="result-stat stat-blue">
+        <div class="result-stat-num" id="stat-ai">—</div>
+        <div class="result-stat-label">Mức dùng AI</div>
+      </div>
+      <div class="result-stat stat-purple">
+        <div class="result-stat-num" id="stat-auto">—</div>
+        <div class="result-stat-label">Automation</div>
+      </div>
+    </div>
+
+    <div class="result-level-badge" id="result-badge">
+      <div class="rlb-icon" id="badge-icon"></div>
+      <div>
+        <div class="rlb-title" id="badge-title"></div>
+        <div class="rlb-desc" id="badge-desc"></div>
+      </div>
+    </div>
+
+    <!-- RADAR CHART -->
+    <div class="radar-wrap">
+      <h3>// BIỂU ĐỒ KỸ NĂNG</h3>
+      <div class="radar-container">
+        <div class="radar-svg-wrap">
+          <canvas id="radarCanvas" width="260" height="260"></canvas>
+        </div>
+        <div class="radar-legend" id="radar-legend"></div>
+      </div>
+    </div>
+
+    <div class="answer-summary">
+      <h3>// TÓM TẮT CÂU TRẢ LỜI</h3>
+      <div id="answer-list"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn btn-outline" onclick="restart()">🔄 Làm lại khảo sát</button>
+      <button class="btn btn-outline" onclick="downloadPNG()" style="flex:1; justify-content:center;">🖼️ Tải ảnh PNG</button>
+      <button class="btn btn-primary" onclick="downloadResult()" style="flex:1; justify-content:center;">⬇ Tải kết quả .txt</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentLevel = '';
+let currentQ = 0;
+const totalQ = 11; // 0..10
+let answers = {};
+
+const levelConfig = {
+  beginner: { label:'🌱 BEGINNER', color:'#10b981', pillBg:'rgba(16,185,129,0.15)', pillColor:'#10b981' },
+  intermediate: { label:'⚙️ INTERMEDIATE', color:'#00d4ff', pillBg:'rgba(0,212,255,0.15)', pillColor:'#00d4ff' },
+  advanced: { label:'🚀 ADVANCED', color:'#a78bfa', pillBg:'rgba(167,139,250,0.15)', pillColor:'#a78bfa' },
+};
+
+function startSurvey(level) {
+  currentLevel = level;
+  currentQ = 0;
+  answers = {};
+  document.getElementById('landing').style.display = 'none';
+  const ss = document.getElementById('survey-section');
+  ss.style.display = 'block';
+  const cfg = levelConfig[level];
+  const pill = document.getElementById('level-pill');
+  pill.textContent = cfg.label;
+  pill.style.background = cfg.pillBg;
+  pill.style.color = cfg.pillColor;
+  updateProgress();
+  showQ(0);
+}
+
+function showQ(n) {
+  document.querySelectorAll('.q-card').forEach(c => c.classList.remove('active'));
+  const card = document.querySelector(`.q-card[data-q="${n}"]`);
+  if (card) {
+    card.classList.add('active');
+    card.style.animation = 'none';
+    card.offsetHeight;
+    card.style.animation = '';
+  }
+  document.getElementById('btn-back').style.opacity = n === 0 ? '0.3' : '1';
+  document.getElementById('btn-back').disabled = n === 0;
+  const isLast = n === 10;
+  document.getElementById('btn-next').textContent = isLast ? 'Hoàn thành ✓' : 'Tiếp theo →';
+}
+
+function updateProgress() {
+  const pct = Math.round((currentQ / 10) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = currentQ + ' / 10';
+}
+
+function selectOpt(el, qNum) {
+  const container = el.closest('.options');
+  const isMulti = container.dataset.type === 'multi';
+  if (!isMulti) {
+    container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    answers[qNum] = el.dataset.val;
+  } else {
+    el.classList.toggle('selected');
+    const selected = [...container.querySelectorAll('.option.selected')].map(o => o.dataset.val);
+    answers[qNum] = selected;
+  }
+}
+
+function getAnswer(qNum) {
+  if (qNum === 0) return document.getElementById('name-input').value.trim();
+  if (qNum === 5) return document.getElementById('q5-text').value.trim();
+  return answers[qNum];
+}
+
+function nextQ() {
+  const ans = getAnswer(currentQ);
+  const isEmpty = !ans || (Array.isArray(ans) && ans.length === 0);
+  if (isEmpty && currentQ !== 5) {
+    flashCard();
+    return;
+  }
+  if (currentQ < 10) {
+    currentQ++;
+    updateProgress();
+    showQ(currentQ);
+  } else {
+    // Done
+    document.getElementById('survey-section').style.display = 'none';
+    document.getElementById('email-section').style.display = 'block';
+  }
+}
+
+function prevQ() {
+  if (currentQ > 0) {
+    currentQ--;
+    updateProgress();
+    showQ(currentQ);
+  }
+}
+
+function flashCard() {
+  const card = document.querySelector('.q-card.active');
+  card.style.borderColor = '#ff4d6d';
+  setTimeout(() => card.style.borderColor = '', 600);
+}
+
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiDY9PiwwYTwdbrtNuxA3svKUHms66BKgiCP2-TooJ3g9D8hnEI4xUntIQ_UERmHc5/exec';
+
+function submitEmail() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('email-input').style.borderColor = '#ff4d6d';
+    setTimeout(() => document.getElementById('email-input').style.borderColor = '', 600);
+    return;
+  }
+  answers['email'] = email;
+  sendToGoogleSheet();
+  showResult();
+}
+
+function showResult() {
+  document.getElementById('email-section').style.display = 'none';
+  document.getElementById('result-section').style.display = 'block';
+  buildResult();
+}
+
+function sendToGoogleSheet() {
+  const name = document.getElementById('name-input').value.trim() || 'Ẩn danh';
+  const score = (() => {
+    let s = 0;
+    const q1map = {'1':0,'2':10,'3':20,'4':35,'5':50};
+    s += q1map[answers[1]] || 0;
+    const q2 = answers[2] || [];
+    if (!q2.includes('none')) s += Math.min(q2.length * 5, 20);
+    const q3map = {never:0,rare:5,weekly:10,daily:15,always:20};
+    s += q3map[answers[3]] || 0;
+    const q6map = {no:0,thinking:5,tried:8,yes:10};
+    s += q6map[answers[6]] || 0;
+    return Math.min(Math.round(s), 100);
+  })();
+
+  const payload = {
+    name:   name,
+    level:  currentLevel,
+    email:  answers['email'] || '',
+    score:  score,
+    q1:  answers[1]  || '',
+    q2:  Array.isArray(answers[2]) ? answers[2].join(', ') : (answers[2] || ''),
+    q3:  answers[3]  || '',
+    q4:  answers[4]  || '',
+    q5:  document.getElementById('q5-text').value.trim() || '',
+    q6:  answers[6]  || '',
+    q7:  answers[7]  || '',
+    q8:  answers[8]  || '',
+    q9:  Array.isArray(answers[9]) ? answers[9].join(', ') : (answers[9] || ''),
+    q10: answers[10] || '',
+  };
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).catch(err => console.warn('Google Sheet sync error:', err));
+}
+
+function calcScore() {
+  let score = 0;
+  // Q1: PA knowledge
+  const q1map = {'1':0,'2':10,'3':20,'4':35,'5':50};
+  score += q1map[answers[1]] || 0;
+  // Q2: AI tools count
+  const q2 = answers[2] || [];
+  if (!q2.includes('none')) score += Math.min(q2.length * 5, 20);
+  // Q3: frequency
+  const q3map = {never:0, rare:5, weekly:10, daily:15, always:20};
+  score += q3map[answers[3]] || 0;
+  // Q6: combined AI+automation
+  const q6map = {no:0, thinking:5, tried:8, yes:10};
+  score += q6map[answers[6]] || 0;
+  // normalize to 100
+  return Math.min(Math.round(score), 100);
+}
+
+function calcRadarScores() {
+  // 6 dimensions, each 0–100
+  const dims = {};
+
+  // 1. Hiểu biết Power Automate (Q1 + Q4)
+  const q1v = {'1':0,'2':20,'3':50,'4':80,'5':100};
+  const q4v = {no:0, heard:20, tried:45, basic:70, advanced:100};
+  dims['Power Automate'] = Math.round(((q1v[answers[1]]||0) + (q4v[answers[4]]||0)) / 2);
+
+  // 2. Mức dùng AI (Q3)
+  const q3v = {never:0, rare:25, weekly:55, daily:80, always:100};
+  dims['Tần suất AI'] = q3v[answers[3]] || 0;
+
+  // 3. Đa dạng công cụ AI (Q2)
+  const q2 = answers[2] || [];
+  dims['Đa dạng AI'] = q2.includes('none') ? 0 : Math.min(q2.length * 25, 100);
+
+  // 4. Tư duy Automation (Q7)
+  const q7v = {a:10, b:25, c:55, d:100};
+  dims['Tư duy Automation'] = q7v[answers[7]] || 0;
+
+  // 5. Kết hợp AI + Automation (Q6)
+  const q6v = {no:0, thinking:30, tried:60, yes:100};
+  dims['AI × Automation'] = q6v[answers[6]] || 0;
+
+  // 6. Prompt Mastery (Q10)
+  const q10v = {no_know:0, no_use:30, sometimes:65, always:100};
+  dims['Prompt Mastery'] = q10v[answers[10]] || 0;
+
+  return dims;
+}
+
+function drawRadar(dims) {
+  const canvas = document.getElementById('radarCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const R = Math.min(W, H) / 2 - 36;
+  const labels = Object.keys(dims);
+  const values = Object.values(dims);
+  const N = labels.length;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const angle = (i) => (Math.PI * 2 * i / N) - Math.PI / 2;
+  const px = (r, i) => cx + r * Math.cos(angle(i));
+  const py = (r, i) => cy + r * Math.sin(angle(i));
+
+  // Grid rings
+  const rings = [20, 40, 60, 80, 100];
+  rings.forEach(pct => {
+    ctx.beginPath();
+    for (let i = 0; i < N; i++) {
+      const r = R * pct / 100;
+      i === 0 ? ctx.moveTo(px(r,i), py(r,i)) : ctx.lineTo(px(r,i), py(r,i));
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(0,212,255,0.1)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // ring label
+    ctx.fillStyle = 'rgba(136,153,187,0.5)';
+    ctx.font = '9px Space Mono, monospace';
+    ctx.fillText(pct, cx + 3, cy - R * pct / 100 + 3);
+  });
+
+  // Spokes
+  for (let i = 0; i < N; i++) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(px(R, i), py(R, i));
+    ctx.strokeStyle = 'rgba(0,212,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Data polygon — filled
+  ctx.beginPath();
+  values.forEach((v, i) => {
+    const r = R * v / 100;
+    i === 0 ? ctx.moveTo(px(r,i), py(r,i)) : ctx.lineTo(px(r,i), py(r,i));
+  });
+  ctx.closePath();
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  grad.addColorStop(0, 'rgba(0,212,255,0.35)');
+  grad.addColorStop(1, 'rgba(124,58,237,0.15)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = '#00d4ff';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#00d4ff';
+  ctx.shadowBlur = 8;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Data points
+  values.forEach((v, i) => {
+    const r = R * v / 100;
+    ctx.beginPath();
+    ctx.arc(px(r,i), py(r,i), 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#00d4ff';
+    ctx.shadowColor = '#00d4ff';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  });
+
+  // Labels
+  ctx.shadowBlur = 0;
+  labels.forEach((label, i) => {
+    const r = R + 22;
+    const lx = px(r, i), ly = py(r, i);
+    ctx.font = 'bold 10px Be Vietnam Pro, sans-serif';
+    ctx.fillStyle = '#f0f4ff';
+    ctx.textAlign = lx < cx - 5 ? 'right' : lx > cx + 5 ? 'left' : 'center';
+    ctx.textBaseline = ly < cy - 5 ? 'bottom' : ly > cy + 5 ? 'top' : 'middle';
+    ctx.fillText(label, lx, ly);
+  });
+
+  // Legend
+  const colors = ['#00d4ff','#10b981','#f59e0b','#a78bfa','#f43f5e','#3b82f6'];
+  const legend = document.getElementById('radar-legend');
+  legend.innerHTML = labels.map((l, i) => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${colors[i]};box-shadow:0 0 6px ${colors[i]}"></div>
+      <div class="legend-name">${l}</div>
+      <div class="legend-val">${values[i]}<span style="color:var(--text-muted);font-size:0.7rem">/100</span></div>
+    </div>
+  `).join('');
+}
+
+function buildResult() {
+  const name = getAnswer(0) || 'Ẩn danh';
+  document.getElementById('result-name-display').textContent = '👤 ' + name + ' · ' + levelConfig[currentLevel].label;
+
+  const score = calcScore();
+  document.getElementById('score-num').textContent = score;
+  setTimeout(() => {
+    const fill = document.getElementById('ring-fill');
+    const offset = 314 - (314 * score / 100);
+    fill.style.strokeDashoffset = offset;
+    const color = score >= 70 ? '#10b981' : score >= 40 ? '#00d4ff' : '#f59e0b';
+    fill.style.stroke = color;
+
+    // Draw radar after ring animation
+    const dims = calcRadarScores();
+    drawRadar(dims);
+  }, 100);
+
+  // Stats
+  const aiMap = {never:'Chưa dùng', rare:'Ít dùng', weekly:'Thường xuyên', daily:'Hằng ngày', always:'Chuyên sâu'};
+  const autoMap = {no:'Chưa dùng', heard:'Biết tên', tried:'Đã thử', basic:'Cơ bản', advanced:'Nâng cao'};
+  document.getElementById('stat-ai').textContent = aiMap[answers[3]] || '—';
+  document.getElementById('stat-auto').textContent = autoMap[answers[4]] || '—';
+
+  let levelStr = score >= 70 ? 'Nâng Cao' : score >= 40 ? 'Trung Cấp' : 'Cơ Bản';
+  document.getElementById('stat-level').textContent = levelStr;
+
+  // Badge
+  let icon, title, desc;
+  if (score >= 70) {
+    icon = '🏆'; title = 'Power User — Bạn đang dẫn đầu!';
+    desc = 'Bạn có nền tảng vững về AI & Automation. Hãy tiếp tục mở rộng và chia sẻ kiến thức với đội nhóm.';
+  } else if (score >= 40) {
+    icon = '⚡'; title = 'Đang Tăng Tốc — Tiếp tục phát huy!';
+    desc = 'Bạn đã có những bước đầu tốt. Hãy tập trung xây dựng thói quen dùng AI hằng ngày và thử Power Automate cho một tác vụ cụ thể.';
+  } else {
+    icon = '🌱'; title = 'Mới Bắt Đầu — Hành trình đang mở ra!';
+    desc = 'Đây là thời điểm tuyệt vời để bắt đầu. Chỉ cần thử một công cụ AI cho một việc nhỏ mỗi ngày, bạn sẽ thấy sự khác biệt rất nhanh.';
+  }
+  document.getElementById('badge-icon').textContent = icon;
+  document.getElementById('badge-title').textContent = title;
+  document.getElementById('badge-desc').textContent = desc;
+
+  // Answer summary
+  const qLabels = [
+    'Họ và tên',
+    'Mức hiểu biết về Power Automate',
+    'Công cụ AI đã dùng',
+    'Tần suất dùng AI',
+    'Đã dùng Power Automate',
+    'Công việc lặp lại tốn thời gian',
+    'Kết hợp AI vào Automation',
+    'Tư duy khi gặp tác vụ thủ công',
+    'Rào cản ứng dụng Automation',
+    'AI đã dùng cho việc gì',
+    'Dùng Prompt Template',
+  ];
+
+  const answerList = document.getElementById('answer-list');
+  answerList.innerHTML = '';
+  for (let i = 0; i <= 10; i++) {
+    const a = i === 0 ? name : (i === 5 ? (answers[5] || document.getElementById('q5-text').value || '(Không điền)') : answers[i]);
+    const displayA = Array.isArray(a) ? a.join(', ') : (a || '(Bỏ qua)');
+    answerList.innerHTML += `<div class="answer-item"><div class="answer-q">${qLabels[i]}</div><div class="answer-a">${displayA}</div></div>`;
+  }
+}
+
+function restart() {
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('landing').style.display = 'block';
+  answers = {};
+  currentQ = 0;
+  document.getElementById('name-input').value = '';
+  document.getElementById('q5-text').value = '';
+  document.getElementById('email-input').value = '';
+  document.querySelectorAll('.option.selected').forEach(o => o.classList.remove('selected'));
+}
+
+function downloadPNG() {
+  const name = getAnswer(0) || 'Ẩn danh';
+  const score = document.getElementById('score-num').textContent;
+  const dims = calcRadarScores();
+  const labels = Object.keys(dims);
+  const values = Object.values(dims);
+  const N = labels.length;
+
+  // Create offscreen canvas - full card
+  const W = 700, H = 580;
+  const oc = document.createElement('canvas');
+  oc.width = W; oc.height = H;
+  const ctx = oc.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#0a0e1a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines subtle
+  ctx.strokeStyle = 'rgba(0,212,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // Card background
+  const rr = (x,y,w,h,r) => {
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+  };
+  rr(24, 24, W-48, H-48, 18);
+  ctx.fillStyle = '#111827';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,212,255,0.2)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Header badge
+  rr(40, 40, 240, 26, 13);
+  ctx.fillStyle = 'rgba(0,212,255,0.1)';
+  ctx.fill();
+  ctx.fillStyle = '#00d4ff';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('POWER AUTOMATE × AI ASSESSMENT', 54, 53);
+
+  // Name + level
+  ctx.fillStyle = '#f0f4ff';
+  ctx.font = 'bold 18px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('👤 ' + name, 40, 78);
+
+  const lvlLabel = levelConfig[currentLevel]?.label || '';
+  ctx.fillStyle = '#8899bb';
+  ctx.font = '13px sans-serif';
+  ctx.fillText(lvlLabel, 40, 102);
+
+  // Score circle (right side header)
+  const scx = W - 80, scy = 80, sr = 36;
+  ctx.beginPath(); ctx.arc(scx, scy, sr, 0, Math.PI*2);
+  ctx.fillStyle = '#1a2235'; ctx.fill();
+  ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 3;
+  // arc fill
+  ctx.beginPath();
+  ctx.arc(scx, scy, sr, -Math.PI/2, -Math.PI/2 + (Math.PI*2 * parseInt(score)/100));
+  ctx.strokeStyle = parseInt(score)>=70?'#10b981':parseInt(score)>=40?'#00d4ff':'#f59e0b';
+  ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.fillStyle = '#f0f4ff';
+  ctx.font = 'bold 18px monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(score, scx, scy - 4);
+  ctx.fillStyle = '#8899bb'; ctx.font = '10px sans-serif';
+  ctx.fillText('/100', scx, scy + 12);
+
+  // Divider
+  ctx.strokeStyle = 'rgba(0,212,255,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(40, 128); ctx.lineTo(W-40, 128); ctx.stroke();
+
+  // --- RADAR ---
+  const rcx = 200, rcy = 340, R = 150;
+  const angle = i => (Math.PI*2*i/N) - Math.PI/2;
+  const rpx = (r,i) => rcx + r * Math.cos(angle(i));
+  const rpy = (r,i) => rcy + r * Math.sin(angle(i));
+
+  // rings
+  [20,40,60,80,100].forEach(pct => {
+    ctx.beginPath();
+    for (let i=0;i<N;i++) {
+      const r = R*pct/100;
+      i===0?ctx.moveTo(rpx(r,i),rpy(r,i)):ctx.lineTo(rpx(r,i),rpy(r,i));
+    }
+    ctx.closePath();
+    ctx.strokeStyle='rgba(0,212,255,0.12)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.fillStyle='rgba(136,153,187,0.4)';
+    ctx.font='9px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(pct, rcx+4, rcy - R*pct/100 - 4);
+  });
+
+  // spokes
+  for(let i=0;i<N;i++){
+    ctx.beginPath(); ctx.moveTo(rcx,rcy); ctx.lineTo(rpx(R,i),rpy(R,i));
+    ctx.strokeStyle='rgba(0,212,255,0.15)'; ctx.lineWidth=1; ctx.stroke();
+  }
+
+  // data polygon
+  ctx.beginPath();
+  values.forEach((v,i)=>{
+    const r=R*v/100;
+    i===0?ctx.moveTo(rpx(r,i),rpy(r,i)):ctx.lineTo(rpx(r,i),rpy(r,i));
+  });
+  ctx.closePath();
+  const g2 = ctx.createRadialGradient(rcx,rcy,0,rcx,rcy,R);
+  g2.addColorStop(0,'rgba(0,212,255,0.4)');
+  g2.addColorStop(1,'rgba(124,58,237,0.15)');
+  ctx.fillStyle=g2; ctx.fill();
+  ctx.strokeStyle='#00d4ff'; ctx.lineWidth=2;
+  ctx.shadowColor='#00d4ff'; ctx.shadowBlur=10; ctx.stroke(); ctx.shadowBlur=0;
+
+  // dots
+  values.forEach((v,i)=>{
+    const r=R*v/100;
+    ctx.beginPath(); ctx.arc(rpx(r,i),rpy(r,i),5,0,Math.PI*2);
+    ctx.fillStyle='#00d4ff'; ctx.shadowColor='#00d4ff'; ctx.shadowBlur=12;
+    ctx.fill(); ctx.shadowBlur=0;
+  });
+
+  // axis labels
+  labels.forEach((label,i)=>{
+    const r=R+26;
+    const lx=rpx(r,i), ly=rpy(r,i);
+    ctx.font='bold 11px sans-serif'; ctx.fillStyle='#f0f4ff';
+    ctx.textAlign = lx<rcx-5?'right':lx>rcx+5?'left':'center';
+    ctx.textBaseline = ly<rcy-5?'bottom':ly>rcy+5?'top':'middle';
+    ctx.fillText(label,lx,ly);
+  });
+
+  // --- LEGEND (right side) ---
+  const colors=['#00d4ff','#10b981','#f59e0b','#a78bfa','#f43f5e','#3b82f6'];
+  const lx0 = 420, ly0 = 148;
+  ctx.font='bold 11px monospace'; ctx.fillStyle='#00d4ff';
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText('// ĐIỂM KỸ NĂNG', lx0, ly0);
+
+  labels.forEach((label,i)=>{
+    const ly = ly0 + 28 + i*52;
+    // mini bar bg
+    rr(lx0, ly, 220, 40, 8);
+    ctx.fillStyle='#1a2235'; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1; ctx.stroke();
+
+    // bar fill
+    rr(lx0, ly, 220*(values[i]/100), 40, 8);
+    ctx.fillStyle = colors[i]+'33'; ctx.fill();
+
+    // dot
+    ctx.beginPath(); ctx.arc(lx0+14, ly+20, 5, 0, Math.PI*2);
+    ctx.fillStyle=colors[i]; ctx.shadowColor=colors[i]; ctx.shadowBlur=8;
+    ctx.fill(); ctx.shadowBlur=0;
+
+    // label
+    ctx.font='bold 11px sans-serif'; ctx.fillStyle='#f0f4ff';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(label, lx0+26, ly+14);
+
+    // value
+    ctx.font='bold 13px monospace'; ctx.fillStyle=colors[i];
+    ctx.textAlign='right';
+    ctx.fillText(values[i]+'/100', lx0+215, ly+26);
+  });
+
+  // Footer
+  ctx.fillStyle='rgba(136,153,187,0.4)';
+  ctx.font='10px monospace'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('Power Automate & AI Assessment · ' + new Date().toLocaleDateString('vi-VN'), W/2, H-16);
+
+  // Download
+  const link = document.createElement('a');
+  link.download = `bieu-do-ky-nang-${name.replace(/\s+/g,'-')}.png`;
+  link.href = oc.toDataURL('image/png');
+  link.click();
+}
+  const name = getAnswer(0) || 'khao-sat';
+  const score = document.getElementById('score-num').textContent;
+  const content = `KẾT QUẢ KHẢO SÁT POWER AUTOMATE & AI\n` +
+    `=====================================\n` +
+    `Họ tên: ${name}\n` +
+    `Cấp độ tham gia: ${currentLevel}\n` +
+    `Điểm tổng: ${score}/100\n\n` +
+    `CHI TIẾT CÂU TRẢ LỜI:\n` +
+    [...document.querySelectorAll('.answer-item')].map(el => {
+      const q = el.querySelector('.answer-q').textContent;
+      const a = el.querySelector('.answer-a').textContent;
+      return `• ${q}: ${a}`;
+    }).join('\n');
+  const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `khaosat-powerautomate-${name.replace(/\s/g,'-')}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
