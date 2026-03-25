@@ -1,531 +1,540 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Khảo Sát Power Automate & AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --accent: #00d4ff;
-    --accent2: #7c3aed;
-    --accent3: #10b981;
-    --text: #f0f4ff;
-    --text-muted: #8899bb;
-    --border: rgba(0,212,255,0.15);
-    --card-glow: 0 0 40px rgba(0,212,255,0.08);
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Automate & AI Assessment</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        :root {
+            --bg-color: #0d111a;
+            --container-bg: #11151f;
+            --text-color-primary: #ffffff;
+            --text-color-secondary: #a0a6b5;
+            --accent-blue: #0ae1e1;
+            --accent-purple: #7e48df;
+            --badge-text: #ffffff;
+            --badge-bg-green: #0a4f32;
+            --badge-bg-blue: #0a3f6a;
+            --badge-bg-purple: #3f2a6f;
+            --border-color: #1a1e28;
+            --gradient-button: linear-gradient(90deg, #0ae1e1, #7e48df);
+        }
 
-  * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-image: 
+                linear-gradient(rgba(26, 30, 40, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(26, 30, 40, 0.4) 1px, transparent 1px);
+            background-size: 40px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Be Vietnam Pro', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px;
+            box-sizing: border-box;
+        }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+        /* Phần đầu: Huy hiệu và Tiêu đề */
+        .header {
+            text-align: left;
+            margin-bottom: 60px;
+        }
 
-  .orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(100px);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .orb1 { width:500px; height:500px; background:rgba(0,212,255,0.07); top:-100px; right:-100px; }
-  .orb2 { width:400px; height:400px; background:rgba(124,58,237,0.07); bottom:-100px; left:-100px; }
+        .assessment-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(10, 225, 225, 0.1);
+            color: var(--accent-blue);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
 
-  .container {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 40px 20px 80px;
-    position: relative;
-    z-index: 1;
-  }
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+            margin-right: 12px;
+        }
 
-  /* ---- FORM SECTION ---- */
-  #survey-section { display: none; animation: fadeUp 0.5s ease both; }
+        .main-title {
+            font-size: 56px;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1.2;
+            margin-bottom: 30px;
+        }
 
-  .survey-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 36px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border);
-  }
-  .level-pill {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 6px 14px;
-    border-radius: 100px;
-  }
+        .main-title span.blue-text {
+            color: var(--accent-blue);
+        }
 
-  .progress-bar-wrap {
-    background: var(--surface2);
-    border-radius: 100px;
-    height: 4px;
-    flex: 1;
-    overflow: hidden;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 100px;
-    transition: width 0.4s ease;
-    width: 0%;
-  }
-  .progress-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
+        .sub-text {
+            color: var(--text-color-secondary);
+            font-size: 20px;
+            line-height: 1.6;
+            margin: 0;
+            max-width: 800px;
+        }
 
-  /* Question card */
-  .q-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 36px;
-    margin-bottom: 20px;
-    display: none;
-    animation: fadeUp 0.4s ease both;
-    box-shadow: var(--card-glow);
-  }
-  .q-card.active { display: block; }
+        /* Phần khảo sát (từ image_3.png) */
+        .survey-section {
+            display: none; /* Ẩn đi mặc định */
+            width: 100%;
+            margin-bottom: 40px;
+        }
 
-  .q-number {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--accent);
-    margin-bottom: 12px;
-    letter-spacing: 0.08em;
-  }
-  .q-text {
-    font-size: 1.1rem;
-    font-weight: 600;
-    line-height: 1.5;
-    margin-bottom: 28px;
-    color: var(--text);
-  }
+        .progress-container {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 40px;
+            color: var(--text-color-secondary);
+            font-size: 14px;
+        }
 
-  /* Name input */
-  .name-input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 20px;
-    font-size: 1rem;
-    font-family: 'Be Vietnam Pro', sans-serif;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .name-input:focus { border-color: var(--accent); }
-  .name-input::placeholder { color: var(--text-muted); }
+        .progress-bar {
+            width: 80%;
+            height: 1px;
+            background-color: var(--border-color);
+            margin-right: 20px;
+            position: relative;
+        }
 
-  /* Options */
-  .options { display: flex; flex-direction: column; gap: 10px; }
-  .option {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    background: var(--surface2);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    padding: 14px 18px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-  .option:hover { border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05); }
-  .option.selected { border-color: var(--accent); background: rgba(0,212,255,0.08); color: #fff; }
-  .option.selected .opt-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-  .opt-dot {
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    border: 2px solid var(--text-muted);
-    flex-shrink: 0;
-    margin-top: 2px;
-    transition: all 0.2s;
-  }
-  .option.multi.selected .opt-dot { border-radius: 4px; }
+        .question-card {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
 
-  /* Navigation */
-  .nav-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 28px;
-    gap: 12px;
-  }
+        .question-info {
+            color: var(--accent-blue);
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 13px 28px;
-    border-radius: 12px;
-    font-family: 'Be Vietnam Pro', sans-serif;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-  }
-  .btn-ghost {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
-    box-shadow: 0 0 20px rgba(0,212,255,0.2);
-  }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(0,212,255,0.3); }
+        .question-text {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
 
-  /* ---- RESULT ---- */
-  #result-section { display: none; animation: fadeUp 0.5s ease both; }
+        .name-input {
+            width: 100%;
+            padding: 20px;
+            background-color: #1a1e28;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-color-primary);
+            font-size: 18px;
+            box-sizing: border-box;
+        }
 
-  /* ---- Sửa CSS Radar Wrap: Tăng padding để tạo không gian ---- */
-  .radar-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 36px 28px;
-    margin-bottom: 24px;
-    box-shadow: var(--card-glow);
-  }
-  .radar-wrap h3 {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: var(--accent);
-    font-family: 'Space Mono', monospace;
-    letter-spacing: 0.05em;
-  }
+        .gradient-button {
+            display: inline-flex;
+            align-items: center;
+            background-image: var(--gradient-button);
+            color: #0d111a;
+            padding: 18px 36px;
+            border-radius: 100px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(10, 225, 225, 0.2);
+        }
 
-  /* ---- Sửa CSS Radar Container: Dùng flex dọc để radar nằm trên ---- */
-  .radar-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 32px;
-  }
+        .gradient-button span {
+            margin-right: 12px;
+        }
 
-  /* ---- Sửa CSS Radar Svg Wrap: Xóa flex item props ---- */
-  .radar-svg-wrap {
-    max-width: 100%;
-    margin-bottom: 0;
-  }
+        /* Phần thẻ cấp độ (từ image_0.png) */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+            margin-bottom: 60px;
+        }
 
-  /* ---- Sửa CSS Radar Legend: Thiết lập width và lề ---- */
-  .radar-legend {
-    width: 100%;
-    max-width: 500px;
-    margin-top: 0;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    font-size: 0.85rem;
-  }
-  .legend-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .legend-name { color: var(--text-muted); flex: 1; }
-  .legend-val {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text);
-  }
+        .level-card {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
 
-  .answer-summary {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 28px;
-  }
-  .answer-summary h3 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; color: var(--accent); font-family: 'Space Mono', monospace; letter-spacing: 0.05em; }
-  .answer-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .answer-item:last-child { border-bottom: none; }
-  .answer-q { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
-  .answer-a { font-size: 0.9rem; font-weight: 500; }
+        .level-card:hover {
+            transform: translateY(-5px);
+        }
 
-  .result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-  .btn-outline {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text);
-    flex: 1;
-    justify-content: center;
-    min-width: 140px;
-  }
-  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .card-emoji {
+            font-size: 40px;
+            margin-bottom: 30px;
+        }
 
-  /* ---- ANIMATIONS ---- */
-  @keyframes fadeUp {
-    from { opacity:0; transform: translateY(20px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
+        .level-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            margin-bottom: 12px;
+        }
 
-  /* Mobile */
-  @media(max-width: 600px) {
-    .radar-wrap { padding: 24px 16px; }
-  }
-</style>
+        .level-card p {
+            color: var(--text-color-secondary);
+            font-size: 18px;
+            line-height: 1.5;
+            margin: 0;
+            margin-bottom: 24px;
+            flex-grow: 1;
+        }
+
+        .card-badge {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            align-self: flex-start;
+        }
+
+        .badge-beginner {
+            background-color: var(--badge-bg-green);
+            color: #26b158;
+        }
+
+        .badge-intermediate {
+            background-color: var(--badge-bg-blue);
+            color: var(--accent-blue);
+        }
+
+        .badge-advanced {
+            background-color: var(--badge-bg-purple);
+            color: var(--accent-purple);
+        }
+
+        /* Phần kết quả (từ image_1.png và image_2.png) */
+        .result-section {
+            width: 100%;
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 60px;
+        }
+
+        .radar-chart-container {
+            width: 50%;
+            padding-right: 60px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .radar-title {
+            font-size: 18px;
+            color: var(--accent-blue);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 40px;
+        }
+
+        .legend-container {
+            width: 50%;
+            padding-top: 60px;
+        }
+
+        .legend-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            font-size: 18px;
+        }
+
+        .legend-label {
+            display: flex;
+            align-items: center;
+            color: var(--text-color-secondary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 18px;
+        }
+
+        .legend-value {
+            font-weight: 700;
+            color: var(--text-color-primary);
+        }
+
+        .legend-value span {
+            color: var(--text-color-secondary);
+            font-weight: 400;
+        }
+
+        /* Ẩn kết quả để hiện khảo sát */
+        .result-section {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
 
-<div class="container">
-
-  <div id="survey-section" style="display:block;"> <div class="survey-header">
-      <div class="level-pill" id="level-pill"></div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill"></div></div>
-      <div class="progress-label" id="prog-label">0 / 11</div>
-    </div>
-
-    <div class="q-card active" data-q="0">
-      <div class="q-number">THÔNG TIN</div>
-      <div class="q-text">Họ và tên của Anh/Chị là gì?</div>
-      <input class="name-input" type="text" id="name-input" placeholder="Nhập họ và tên...">
-    </div>
-
-    <div class="q-card" data-q="1">
-      <div class="q-number">CÂU 1 / 10</div>
-      <div class="q-text">Anh/Chị tự đánh giá mức độ hiểu biết của mình về Automation (MS Power Automate)?</div>
-      <div class="options" data-type="single">
-        <div class="option" data-val="1" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Chưa từng nghe đến</div>
-        <div class="option" data-val="2" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Đã nghe nhưng chưa thử</div>
-        <div class="option" data-val="3" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Đã thử một vài lần</div>
-        <div class="option" data-val="4" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Dùng thường xuyên và hiểu rõ</div>
-        <div class="option" data-val="5" onclick="selectOpt(this,1)"><span class="opt-dot"></span>Có thể hướng dẫn người khác</div>
-      </div>
-    </div>
-    
-    <div class="nav-row">
-      <button class="btn btn-primary" id="btn-next" onclick="nextQ()">Xem kết quả Quản lý cấp cao →</button>
-    </div>
-  </div>
-
-  <div id="result-section">
-    <div class="radar-wrap">
-      <h3>// BIỂU ĐỒ KỸ NĂNG</h3>
-      <div class="radar-container">
-        <div class="radar-svg-wrap">
-          <canvas id="radarCanvas" width="320" height="320"></canvas> </div>
-        <div class="radar-legend" id="radar-legend"></div>
-      </div>
-    </div>
-
-    <div class="answer-summary">
-      <h3>// TÓM TẮT CÂU TRẢ LỜI</h3>
-      <div id="answer-list"></div>
-    </div>
-
-    <div class="result-actions">
-      <button class="btn btn-outline" onclick="restart()">🔄 Làm lại khảo sát</button>
-      <button class="btn btn-outline" onclick="downloadPNG()" style="flex:1; justify-content:center;">🖼️ Tải ảnh PNG</button>
-      <button class="btn btn-primary" onclick="downloadResult()" style="flex:1; justify-content:center;">⬇ Tải kết quả .txt</button>
-    </div>
-  </div>
-
-</div>
-
-<script>
-let currentLevel = 'executive'; // Giả lập Quản lý cấp cao
-let currentQ = 0;
-let answers = {};
-
-// Dữ liệu Quản lý cấp cao chính xác từ hình ảnh của bạn
-answers[1] = 'executive_pa_level'; // Cần hàm tính điểm trục dựa trên này
-answers[4] = 'heard'; // Biết tên nhưng chưa dùng
-answers[3] = 'rare'; // Ít dùng
-answers[2] = [' Copilot', ' ChatGPT', ' Google Gemini', ' Claude (Anthropic)']; // Đã dùng nhiều công cụ AI
-answers[6] = 'thinking'; // Đang tìm hiểu
-answers[7] = 'd'; // Nghĩ ngay đến Auto
-answers[10] = 'sometimes'; // Đôi khi dùng
-
-// Cấu hình cấp độ
-const levelConfig = {
-  executive: { label:'🏆 QUẢN LÝ CẤP CAO', color:'#ff9800', pillBg:'rgba(255,165,0,0.15)', pillColor:'#ff9800' },
-};
-
-function selectOpt(el, qNum) {
-  el.closest('.options').querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  answers[qNum] = el.dataset.val;
-}
-
-function nextQ() {
-  const name = document.getElementById('name-input').value.trim();
-  if (!name) { document.getElementById('name-input').style.borderColor = '#ff4d6d'; return; }
-  document.getElementById('survey-section').style.display = 'none';
-  document.getElementById('result-section').style.display = 'block';
-  buildResult();
-}
-
-// ---- Sửa hàm tính điểm các trục: Cập nhật dữ liệu chính xác từ hình ảnh của bạn ----
-function calculateDim(qA, qB) {
-  // Lấy dữ liệu Quản lý cấp cao trực tiếp từ ảnh của bạn
-  const executiveDims = {
-      'Power Automate': 75,
-      'Tần suất AI': 80,
-      'Đa dạng AI': 25,
-      'Tư duy Automation': 55,
-      'AI × Automation': 100,
-      'Prompt Mastery': 65
-  };
-  
-  if (qA === 1) return executiveDims['Power Automate'];
-  if (qA === 3) return executiveDims['Tần suất AI'];
-  if (qA === 2) return executiveDims['Đa dạng AI'];
-  if (qA === 7) return executiveDims['Tư duy Automation'];
-  if (qA === 6) return executiveDims['AI × Automation'];
-  if (qA === 10) return executiveDims['Prompt Mastery'];
-  return 0;
-}
-
-function calculateTotalScore() {
-    // Trả về trung bình normalized để tổng thể radar trông khớp
-    const executiveDims = { 'Power Automate': 75, 'Tần suất AI': 80, 'Đa dạng AI': 25, 'Tư duy Automation': 55, 'AI × Automation': 100, 'Prompt Mastery': 65 };
-    return Math.round((75 + 80 + 25 + 55 + 100 + 65) / 6);
-}
-
-// ---- Sửa hàm vẽ Radar: Tăng canvas, giảm bán kính radar lưới để tạo không gian nhãn ----
-function drawRadarChart(dims) {
-    const canvas = document.getElementById('radarCanvas');
-    const ctx = canvas.getContext('2d');
-    const labels = Object.keys(dims);
-    const data = Object.values(dims);
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = 96; // Giảm bán kính radar lưới để tạo không gian nhãn
-    const numAxes = labels.length;
-
-    ctx.clearRect(0,0, canvas.width, canvas.height);
-
-    // Vẽ đa giác nền
-    for(let r=5; r>=1; r--) {
-        ctx.beginPath();
-        const curR = (radius / 5) * r;
-        for(let i=0; i<numAxes; i++) {
-            const angle = (Math.PI*2 / numAxes) * i - Math.PI/2;
-            const x = centerX + curR * Math.cos(angle);
-            const y = centerY + curR * Math.sin(angle);
-            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-        ctx.stroke();
-        // ring label
-        ctx.fillStyle = 'rgba(136,153,187,0.3)';
-        ctx.font = '8px Space Mono, monospace';
-        ctx.fillText(r*20, centerX + 4, centerY - curR + 3);
-    }
-
-    // Vẽ trục
-    for(let i=0; i<numAxes; i++) {
-        const angle = (Math.PI*2 / numAxes) * i - Math.PI/2;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
-        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-        ctx.stroke();
-    }
-
-    // Vẽ vùng dữ liệu
-    ctx.beginPath();
-    data.forEach((val, i) => {
-        const curR = (radius * val / 100);
-        const angle = (Math.PI*2 / numAxes) * i - Math.PI/2;
-        const x = centerX + curR * Math.cos(angle);
-        const y = centerY + curR * Math.sin(angle);
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    });
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(0, 212, 255, 0.2)'; ctx.fill();
-    ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2; ctx.shadowColor = '#00d4ff'; ctx.shadowBlur = 10; ctx.stroke(); ctx.shadowBlur = 0;
-
-    // Vẽ nhãn: Sửa đổi vị trí nhãn ra xa tâm hơn để hiển thị đầy đủ
-    data.forEach((val, i) => {
-        const curR = (radius * val / 100);
-        const angle = (Math.PI*2 / numAxes) * i - Math.PI/2;
-        ctx.beginPath();
-        ctx.arc(centerX + curR * Math.cos(angle), centerY + curR * Math.sin(angle), 3.5, 0, Math.PI*2);
-        ctx.fillStyle = '#00d4ff'; ctx.fill();
-        ctx.beginPath(); ctx.arc(centerX + curR * Math.cos(angle), centerY + curR * Math.sin(angle), 1.5, 0, Math.PI*2); ctx.fillStyle = '#002631'; ctx.fill();
-    });
-    
-    // Hiển thị nhãn trục: Dịch chuyển vị trí nhãn ra xa tâm hơn
-    labels.forEach((label, i) => {
-        const labelR = radius + 32; // Tăng khoảng cách nhãn để không bị cắt
-        const angle = (Math.PI*2 / numAxes) * i - Math.PI/2;
-        const lx = centerX + labelR * Math.cos(angle);
-        const ly = centerY + labelR * Math.sin(angle);
-        
-        ctx.font = 'bold 10px Be Vietnam Pro, sans-serif'; ctx.fillStyle = '#f0f4ff';
-        ctx.textAlign = lx < centerX - 5 ? 'right' : lx > centerX + 5 ? 'left' : 'center';
-        ctx.textBaseline = ly < centerY - 5 ? 'bottom' : ly > centerY + 5 ? 'top' : 'middle';
-        ctx.fillText(label, lx, ly);
-    });
-}
-
-// Cấu hình màu sắc legend chính xác từ hình của bạn
-const executiveColors=['#00d4ff','#10b981','#f59e0b','#a78bfa','#f43f5e','#3b82f6'];
-
-function buildLegend(dims) {
-    const legend = document.getElementById('radar-legend');
-    legend.innerHTML = Object.entries(dims).map(([l, v], i) => `
-        <div class="legend-item">
-            <div class="legend-dot" style="background:${executiveColors[i]}; box-shadow: 0 0 10px ${executiveColors[i]};"></div>
-            <div class="legend-name">${l}</div>
-            <div class="legend-val">${v}<span style="color:var(--text-muted);font-size:0.7rem">/100</span></div>
+    <div class="container">
+        <div class="header">
+            <div class="assessment-badge">
+                <div class="badge-dot"></div>
+                POWER AUTOMATE × AI ASSESSMENT
+            </div>
+            <h1 class="main-title">Bạn đang ở đâu <span class="blue-text">trên hành</span><br>trình tự động hóa?</h1>
+            <p class="sub-text">Bộ khảo sát 10 câu hỏi giúp đánh giá mức độ hiểu biết về Power Automat & AI. Khám phá điểm mạnh và lộ trình phát triển phù hợp với bạn.</p>
         </div>
-    `).join('');
-}
 
-function buildResult() {
-  const name = document.getElementById('name-input').value.trim();
-  const executiveDims = { 'Power Automate': 75, 'Tần suất AI': 80, 'Đa dạng AI': 25, 'Tư duy Automation': 55, 'AI × Automation': 100, 'Prompt Mastery': 65 };
-  
-  // Render radar and legend: Kết quả khớp Quản lý cấp cao của bạn
-  drawRadarChart(executiveDims);
-  buildLegend(executiveDims);
-}
+        <div id="welcome-cards" class="cards-grid">
+            <div class="level-card">
+                <div class="card-emoji">🌱</div>
+                <h3>Người Mới Bắt Đầu</h3>
+                <p>Chưa hoặc ít dùng Automation</p>
+                <div class="card-badge badge-beginner">BEGINNER</div>
+            </div>
+            <div class="level-card">
+                <div class="card-emoji">⚙️</div>
+                <h3>Đang Khám Phá</h3>
+                <p>Đã thử dùng một vài công cụ AI</p>
+                <div class="card-badge badge-intermediate">INTERMEDIATE</div>
+            </div>
+            <div class="level-card">
+                <div class="card-emoji">🚀</div>
+                <h3>Đang Ứng Dụng</h3>
+                <p>Đã tích hợp AI vào quy trình làm việc</p>
+                <div class="card-badge badge-advanced">ADVANCED</div>
+            </div>
+        </div>
 
-function restart() { location.reload(); }
-function downloadPNG() { alert('Chức năng tải PNG sẽ được triển khai sau!'); }
-function downloadResult() { alert('Chức năng tải TXT sẽ được triển khai sau!'); }
-</script>
+        <div style="text-align: left; margin-bottom: 60px;">
+            <button class="gradient-button" id="start-survey-btn"><span>Bắt đầu khảo sát</span> →</button>
+        </div>
+
+        <div id="survey-section" class="survey-section">
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+                0 / 11
+            </div>
+            <div class="question-card">
+                <div class="question-info">THÔNG TIN</div>
+                <div class="question-text">Họ và tên của Anh/Chị là gì?</div>
+                <input type="text" class="name-input" placeholder="Nhập họ và tên...">
+            </div>
+            <div style="text-align: left;">
+                <button class="gradient-button" id="see-results-btn"><span>Xem kết quả Quản lý cấp cao</span> →</button>
+            </div>
+        </div>
+
+        <div id="result-section" class="result-section">
+            <div class="radar-chart-container">
+                <div class="radar-title">// BIỂU ĐỒ KỸ NĂNG</div>
+                <canvas id="radarChart"></canvas>
+            </div>
+            <div class="legend-container">
+                <ul class="legend-list">
+                    <li class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-dot" style="background-color: var(--accent-blue);"></div>
+                            Power Automate
+                        </div>
+                        <div class="legend-value">75 <span>/100</span></div>
+                    </li>
+                    <li class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-dot" style="background-color: #0dcf81;"></div>
+                            Tần suất AI
+                        </div>
+                        <div class="legend-value">80 <span>/100</span></div>
+                    </li>
+                    <li class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-dot" style="background-color: #f7a224;"></div>
+                            Đa dạng AI
+                        </div>
+                        <div class="legend-value">25 <span>/100</span></div>
+                    </li>
+                    <li class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-dot" style="background-color: var(--accent-purple);"></div>
+                            Tư duy Automation
+                        </div>
+                        <div class="legend-value">55 <span>/100</span></div>
+                    </li>
+                    <li class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-dot" style="background-color: #e21b4f;"></div>
+                            AI × Automation
+                        </div>
+                        <div class="legend-value">100 <span>/100</span></div>
+                    </li>
+                    <li class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-dot" style="background-color: #2160cf;"></div>
+                            Prompt Mastery
+                        </div>
+                        <div class="legend-value">65 <span>/100</span></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript để chuyển đổi các phần
+        const startSurveyBtn = document.getElementById('start-survey-btn');
+        const welcomeCards = document.getElementById('welcome-cards');
+        const surveySection = document.getElementById('survey-section');
+        const seeResultsBtn = document.getElementById('see-results-btn');
+        const resultSection = document.getElementById('result-section');
+
+        startSurveyBtn.addEventListener('click', () => {
+            welcomeCards.style.display = 'none';
+            startSurveyBtn.parentElement.style.display = 'none';
+            surveySection.style.display = 'block';
+        });
+
+        seeResultsBtn.addEventListener('click', () => {
+            surveySection.style.display = 'none';
+            resultSection.style.display = 'flex';
+            initializeRadarChart(); // Khởi tạo biểu đồ khi phần kết quả hiện ra
+        });
+
+        function initializeRadarChart() {
+            // Dữ liệu từ image_2.png
+            const data = {
+                labels: ['Power Automate', 'Tần suất AI', 'Đa dạng AI', 'Tư duy Automation', 'AI × Automation', 'Prompt Mastery'],
+                datasets: [{
+                    label: 'Điểm kỹ năng',
+                    data: [75, 80, 25, 55, 100, 65],
+                    fill: true,
+                    backgroundColor: 'rgba(10, 225, 225, 0.2)',
+                    borderColor: '#0ae1e1',
+                    pointBackgroundColor: '#0ae1e1',
+                    pointBorderColor: '#0ae1e1',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#0ae1e1',
+                    borderWidth: 2,
+                    pointRadius: 4 // Tăng kích thước điểm
+                }]
+            };
+
+            const config = {
+                type: 'radar',
+                data: data,
+                plugins: [ChartDataLabels], // Kích hoạt plugin datalabels
+                options: {
+                    responsive: true,
+                    layout: {
+                        padding: {
+                            // Thêm padding để nhãn không bị cắt
+                            top: 40,
+                            bottom: 40,
+                            left: 40,
+                            right: 40
+                        }
+                    },
+                    elements: {
+                        line: {
+                            tension: 0 // Đường thẳng
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: '#1a1e28' // Màu đường kẻ trục
+                            },
+                            grid: {
+                                color: '#1a1e28' // Màu đường kẻ lưới
+                            },
+                            pointLabels: {
+                                color: '#ffffff', // Màu nhãn trục
+                                font: {
+                                    size: 16 // Tăng kích thước nhãn trục
+                                },
+                                padding: 20 // Khoảng cách nhãn trục để không bị cắt
+                            },
+                            ticks: {
+                                display: false, // Ẩn thang đo điểm mặc định
+                                stepSize: 20,
+                                min: 0,
+                                max: 100
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Ẩn legend mặc định của thư viện
+                        },
+                        tooltip: {
+                            enabled: false // Ẩn tooltip mặc định
+                        },
+                        datalabels: {
+                            // Cấu hình hiện số điểm trên radar
+                            color: '#ffffff', // Màu số điểm
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            },
+                            align: 'end',
+                            anchor: 'end',
+                            formatter: (value, context) => {
+                                return value; // Chỉ hiện số
+                            },
+                            backgroundColor: 'rgba(26, 30, 40, 0.8)', // Nền tối cho số dễ nhìn
+                            borderRadius: 4,
+                            padding: 4
+                        }
+                    }
+                }
+            };
+
+            const radarChart = new Chart(
+                document.getElementById('radarChart'),
+                config
+            );
+        }
+    </script>
 </body>
 </html>
