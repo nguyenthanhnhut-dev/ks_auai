@@ -372,6 +372,7 @@
   .score-ring-fill { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
   .score-center {
     position: absolute;
+    top: 0; left: 0;
     width: 180px;
     height: 180px;
     display: flex;
@@ -872,7 +873,7 @@ function flashCard() {
   setTimeout(() => card.style.borderColor = '', 600);
 }
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiDY9PiwwYTwdbrtNuxA3svKUHms66BKgiCP2-TooJ3g9D8hnEI4xUntIQ_UERmHc5/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzWxGiqd9whkbkQBHoLoKI4PH8ugYnT6Ntm08p1ahluxRvS-jsNjii817iY8SHZZubo/exec';
 
 function submitEmail() {
   const email = document.getElementById('email-input').value.trim();
@@ -924,12 +925,10 @@ function sendToGoogleSheet() {
     q10: answers[10] || '',
   };
 
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  }).catch(err => console.warn('Google Sheet sync error:', err));
+  const params = new URLSearchParams(payload).toString();
+  const img = new Image();
+  img.src = APPS_SCRIPT_URL + '?' + params;
+  img.onerror = () => {}; // silence broken image error — data was sent
 }
 
 function calcScore() {
@@ -1345,6 +1344,8 @@ function downloadPNG() {
   link.href = oc.toDataURL('image/png');
   link.click();
 }
+
+function downloadResult() {
   const name = getAnswer(0) || 'khao-sat';
   const score = document.getElementById('score-num').textContent;
   const content = `KẾT QUẢ KHẢO SÁT POWER AUTOMATE & AI\n` +
