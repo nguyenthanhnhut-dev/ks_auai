@@ -29,7 +29,6 @@
     overflow-x: hidden;
   }
 
-  /* Background grid */
   body::before {
     content: '';
     position: fixed;
@@ -60,7 +59,6 @@
     z-index: 1;
   }
 
-  /* ---- LANDING ---- */
   #landing { animation: fadeUp 0.6s ease both; }
 
   .badge {
@@ -98,9 +96,10 @@
     max-width: 580px;
   }
 
+  /* ---- LEVEL GRID: Sửa đổi để hỗ trợ 4 cột ---- */
   .level-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(4, 1fr); /* Tăng lên 4 cột cho máy tính */
     gap: 16px;
     margin-bottom: 40px;
   }
@@ -126,6 +125,8 @@
   .level-card.lv1::before { background: linear-gradient(135deg, rgba(16,185,129,0.1), transparent); }
   .level-card.lv2::before { background: linear-gradient(135deg, rgba(0,212,255,0.1), transparent); }
   .level-card.lv3::before { background: linear-gradient(135deg, rgba(124,58,237,0.1), transparent); }
+  .level-card.lv4::before { background: linear-gradient(135deg, rgba(255,165,0,0.1), transparent); } /* Thêm nền cho EXECUTIVE */
+  
   .level-card:hover::before { opacity: 1; }
   .level-card:hover { transform: translateY(-4px); box-shadow: var(--card-glow); border-color: rgba(0,212,255,0.3); }
 
@@ -141,11 +142,14 @@
     border-radius: 100px;
     font-weight: 700;
   }
+  
+  /* ---- Cập nhật màu sắc cho các nhãn ---- */
   .lv1 .level-tag { background: rgba(16,185,129,0.15); color: var(--accent3); }
   .lv2 .level-tag { background: rgba(0,212,255,0.15); color: var(--accent); }
   .lv3 .level-tag { background: rgba(124,58,237,0.15); color: #a78bfa; }
+  .lv4 .level-tag { background: rgba(255,165,0,0.15); color: #ff9800; } /* Thêm màu cho EXECUTIVE */
 
-  /* ---- FORM SECTION ---- */
+  /* ---- SURVEY SECTION ---- */
   #survey-section { display: none; animation: fadeUp 0.5s ease both; }
 
   .survey-header {
@@ -455,7 +459,7 @@
   /* ---- ANIMATIONS ---- */
   @keyframes fadeUp {
     from { opacity:0; transform: translateY(20px); }
-    to   { opacity:1; transform: translateY(0); }
+    to   { opacity:1; transform: translateY(0); }
   }
   @keyframes pulse {
     0%,100% { opacity:1; }
@@ -513,6 +517,7 @@
     .q-card { padding: 24px; }
     .result-level-badge { flex-direction: column; text-align: center; }
     .radar-container { flex-direction: column; }
+    .level-grid { grid-template-columns: repeat(1, 1fr); } /* Di động 1 cột */
   }
 </style>
 </head>
@@ -522,34 +527,39 @@
 
 <div class="container">
 
-  <!-- LANDING -->
   <div id="landing">
     <div class="badge"><span class="badge-dot"></span>POWER AUTOMATE × AI ASSESSMENT</div>
     <h1>Bạn đang ở đâu trên hành trình tự động hóa?</h1>
     <p class="subtitle">Bộ khảo sát 10 câu hỏi giúp đánh giá mức độ hiểu biết về Power Automate & AI. Khám phá điểm mạnh và lộ trình phát triển phù hợp với bạn.</p>
+    
     <div class="level-grid">
       <div class="level-card lv1" onclick="startSurvey('beginner')">
         <span class="level-icon">🌱</span>
-        <div class="level-title">Người Mới Bắt Đầu</div>
-        <div class="level-sub">Chưa hoặc ít dùng Automation</div>
-        <span class="level-tag">BEGINNER</span>
+        <div class="level-title">Nhân viên</div>
+        <div class="level-sub">Mới tiếp cận, học hỏi quy trình</div>
+        <span class="level-tag">EMPLOYEE</span>
       </div>
       <div class="level-card lv2" onclick="startSurvey('intermediate')">
         <span class="level-icon">⚙️</span>
-        <div class="level-title">Đang Khám Phá</div>
-        <div class="level-sub">Đã thử dùng một vài công cụ AI</div>
-        <span class="level-tag">INTERMEDIATE</span>
+        <div class="level-title">Trưởng nhóm</div>
+        <div class="level-sub">Hiểu cơ bản, bắt đầu hướng dẫn đội nhóm</div>
+        <span class="level-tag">TEAM LEADER</span>
       </div>
       <div class="level-card lv3" onclick="startSurvey('advanced')">
         <span class="level-icon">🚀</span>
-        <div class="level-title">Đang Ứng Dụng</div>
-        <div class="level-sub">Đã tích hợp AI vào quy trình làm việc</div>
-        <span class="level-tag">ADVANCED</span>
+        <div class="level-title">Trưởng phòng</div>
+        <div class="level-sub">Sử dụng thành thạo, thúc đẩy hiệu suất</div>
+        <span class="level-tag">DEPARTMENT HEAD</span>
+      </div>
+      <div class="level-card lv4" onclick="startSurvey('executive')">
+        <span class="level-icon">🏆</span>
+        <div class="level-title">Quản lý cấp cao</div>
+        <div class="level-sub">Định hướng chiến lược, ra quyết định lớn</div>
+        <span class="level-tag">EXECUTIVE</span>
       </div>
     </div>
   </div>
 
-  <!-- SURVEY -->
   <div id="survey-section">
     <div class="survey-header">
       <div class="level-pill" id="level-pill"></div>
@@ -557,14 +567,12 @@
       <div class="progress-label" id="prog-label">0 / 11</div>
     </div>
 
-    <!-- Q0: Họ và tên -->
     <div class="q-card active" data-q="0">
       <div class="q-number">THÔNG TIN</div>
       <div class="q-text">Họ và tên của Anh/Chị là gì?</div>
       <input class="name-input" type="text" id="name-input" placeholder="Nhập họ và tên...">
     </div>
 
-    <!-- Q1 -->
     <div class="q-card" data-q="1">
       <div class="q-number">CÂU 1 / 10</div>
       <div class="q-text">Anh/Chị tự đánh giá mức độ hiểu biết của mình về Automation (MS Power Automate)?</div>
@@ -577,7 +585,6 @@
       </div>
     </div>
 
-    <!-- Q2 -->
     <div class="q-card" data-q="2">
       <div class="q-number">CÂU 2 / 10</div>
       <div class="q-text">Anh/Chị đã từng sử dụng các công cụ AI nào dưới đây để hỗ trợ công việc? <small style="color:var(--text-muted);font-size:0.8rem;">(Chọn nhiều đáp án)</small></div>
@@ -590,7 +597,6 @@
       </div>
     </div>
 
-    <!-- Q3 -->
     <div class="q-card" data-q="3">
       <div class="q-number">CÂU 3 / 10</div>
       <div class="q-text">Trong 1 tháng qua, tần suất Anh/Chị sử dụng AI để giải quyết công việc là bao nhiêu?</div>
@@ -603,7 +609,6 @@
       </div>
     </div>
 
-    <!-- Q4 -->
     <div class="q-card" data-q="4">
       <div class="q-number">CÂU 4 / 10</div>
       <div class="q-text">Anh/Chị đã từng sử dụng Microsoft Power Automate chưa?</div>
@@ -616,14 +621,12 @@
       </div>
     </div>
 
-    <!-- Q5 -->
     <div class="q-card" data-q="5">
       <div class="q-number">CÂU 5 / 10</div>
       <div class="q-text">Công việc nào chiếm nhiều thời gian lặp đi lặp lại nhất của Anh/Chị hàng ngày?</div>
       <textarea class="text-answer" id="q5-text" placeholder="Ví dụ: nhập dữ liệu Excel, gửi email báo cáo, sao chép thông tin giữa các hệ thống..."></textarea>
     </div>
 
-    <!-- Q6 -->
     <div class="q-card" data-q="6">
       <div class="q-number">CÂU 6 / 10</div>
       <div class="q-text">Anh/Chị đã từng thử kết hợp AI vào một luồng tự động hóa (Automation) chưa?</div>
@@ -635,7 +638,6 @@
       </div>
     </div>
 
-    <!-- Q7 -->
     <div class="q-card" data-q="7">
       <div class="q-number">CÂU 7 / 10</div>
       <div class="q-text">Khi gặp một tác vụ thủ công mất 2 giờ để làm mỗi ngày, tư duy đầu tiên của Anh/Chị là gì?</div>
@@ -647,7 +649,6 @@
       </div>
     </div>
 
-    <!-- Q8 -->
     <div class="q-card" data-q="8">
       <div class="q-number">CÂU 8 / 10</div>
       <div class="q-text">Rào cản lớn nhất khiến Anh/Chị chưa ứng dụng Automation hiệu quả là gì?</div>
@@ -660,7 +661,6 @@
       </div>
     </div>
 
-    <!-- Q9 -->
     <div class="q-card" data-q="9">
       <div class="q-number">CÂU 9 / 10</div>
       <div class="q-text">Anh/Chị đã dùng AI cho những việc nào? <small style="color:var(--text-muted);font-size:0.8rem;">(Chọn nhiều đáp án)</small></div>
@@ -674,7 +674,6 @@
       </div>
     </div>
 
-    <!-- Q10 -->
     <div class="q-card" data-q="10">
       <div class="q-number">CÂU 10 / 10</div>
       <div class="q-text">Anh/Chị có dùng prompt template (khung cố định) để đảm bảo output ổn định không?</div>
@@ -692,7 +691,6 @@
     </div>
   </div>
 
-  <!-- EMAIL -->
   <div id="email-section">
     <div class="email-card">
       <div class="email-icon">📬</div>
@@ -704,7 +702,6 @@
     </div>
   </div>
 
-  <!-- RESULT -->
   <div id="result-section">
     <div class="result-header">
       <h2>Kết Quả Đánh Giá Của Bạn</h2>
@@ -747,7 +744,6 @@
       </div>
     </div>
 
-    <!-- RADAR CHART -->
     <div class="radar-wrap">
       <h3>// BIỂU ĐỒ KỸ NĂNG</h3>
       <div class="radar-container">
@@ -778,10 +774,12 @@ let currentQ = 0;
 const totalQ = 11; // 0..10
 let answers = {};
 
+// ---- LEVEL CONFIG: Cập nhật cấu hình cho 4 cấp độ ----
 const levelConfig = {
-  beginner: { label:'🌱 BEGINNER', color:'#10b981', pillBg:'rgba(16,185,129,0.15)', pillColor:'#10b981' },
-  intermediate: { label:'⚙️ INTERMEDIATE', color:'#00d4ff', pillBg:'rgba(0,212,255,0.15)', pillColor:'#00d4ff' },
-  advanced: { label:'🚀 ADVANCED', color:'#a78bfa', pillBg:'rgba(167,139,250,0.15)', pillColor:'#a78bfa' },
+  beginner: { label:'🌱 NHÂN VIÊN', color:'#10b981', pillBg:'rgba(16,185,129,0.15)', pillColor:'#10b981' },
+  intermediate: { label:'⚙️ TRƯỞNG NHÓM', color:'#00d4ff', pillBg:'rgba(0,212,255,0.15)', pillColor:'#00d4ff' },
+  advanced: { label:'🚀 TRƯỞNG PHÒNG', color:'#a78bfa', pillBg:'rgba(167,139,250,0.15)', pillColor:'#a78bfa' },
+  executive: { label:'🏆 QUẢN LÝ CẤP CAO', color:'#ff9800', pillBg:'rgba(255,165,0,0.15)', pillColor:'#ff9800' },
 };
 
 function startSurvey(level) {
@@ -909,19 +907,19 @@ function sendToGoogleSheet() {
   })();
 
   const payload = {
-    name:   name,
-    level:  currentLevel,
-    email:  answers['email'] || '',
-    score:  score,
-    q1:  answers[1]  || '',
-    q2:  Array.isArray(answers[2]) ? answers[2].join(', ') : (answers[2] || ''),
-    q3:  answers[3]  || '',
-    q4:  answers[4]  || '',
-    q5:  document.getElementById('q5-text').value.trim() || '',
-    q6:  answers[6]  || '',
-    q7:  answers[7]  || '',
-    q8:  answers[8]  || '',
-    q9:  Array.isArray(answers[9]) ? answers[9].join(', ') : (answers[9] || ''),
+    name:   name,
+    level:  currentLevel,
+    email:  answers['email'] || '',
+    score:  score,
+    q1:  answers[1]  || '',
+    q2:  Array.isArray(answers[2]) ? answers[2].join(', ') : (answers[2] || ''),
+    q3:  answers[3]  || '',
+    q4:  answers[4]  || '',
+    q5:  document.getElementById('q5-text').value.trim() || '',
+    q6:  answers[6]  || '',
+    q7:  answers[7]  || '',
+    q8:  answers[8]  || '',
+    q9:  Array.isArray(answers[9]) ? answers[9].join(', ') : (answers[9] || ''),
     q10: answers[10] || '',
   };
 
