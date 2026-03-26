@@ -134,15 +134,6 @@
   .level-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
   .level-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
   .level-sub { font-size: 0.8rem; color: var(--text-muted); }
-  .level-tag {
-    display: inline-block;
-    margin-top: 12px;
-    font-size: 0.72rem;
-    font-family: 'Space Mono', monospace;
-    padding: 3px 10px;
-    border-radius: 100px;
-    font-weight: 700;
-  }
 
   /* ---- FORM SECTION ---- */
   #survey-section { display: none; animation: fadeUp 0.5s ease both; }
@@ -298,7 +289,6 @@
   .score-ring-container { position: relative; width: 180px; height: 180px; }
   .score-num { font-family: 'Space Mono', monospace; font-size: 2.2rem; font-weight: 700; line-height: 1; }
 
-  /* Cập nhật Radar Chart Container */
   .radar-wrap {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -320,7 +310,7 @@
   .radar-svg-wrap { 
     width: 100%; 
     max-width: 480px; 
-    height: 400px; /* Cần set chiều cao cố định cho Chart.js */
+    height: 400px;
     position: relative;
   }
   .radar-legend { width: 100%; max-width: 500px; margin-top: 20px; }
@@ -519,7 +509,8 @@
       <p style="color: var(--text-muted); margin-bottom: 30px;">Nhận bản tóm tắt lộ trình phát triển cá nhân của bạn.</p>
       <input class="email-input" type="email" id="email-input" placeholder="Địa chỉ email của bạn..." style="margin-bottom: 15px;">
       <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="submitEmail()">Gửi Kết Quả Cho Tôi ✉️</button>
-      <span class="skip-link" onclick="showResult()">Bỏ qua, xem kết quả ngay</span>
+      
+      <span class="skip-link" onclick="sendToGoogleSheet(''); showResult()">Bỏ qua, xem kết quả ngay</span>
     </div>
   </div>
 
@@ -566,6 +557,9 @@
 </div>
 
 <script>
+// URL Ứng dụng Web App của bạn
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlqPT-IR855qStQh9QKm7vdz3l0nGBY3xvNjMMEmOXaa_zat4t8nSP4VB7lgTzix3q/exec";
+
 let currentLevel = '';
 let currentQ = 0;
 let answers = {};
@@ -671,10 +665,47 @@ function prevQ() {
   }
 }
 
+// ---- HÀM GỬI DỮ LIỆU LÊN GOOGLE SHEET ----
+function sendToGoogleSheet(email) {
+  if (!SCRIPT_URL) return;
+
+  const dims = calcRadarScores();
+  const totalScore = Math.round(Object.values(dims).reduce((a, b) => a + b, 0) / 6);
+  const name = document.getElementById('name-input').value.trim() || 'Ẩn danh';
+
+  const payload = {
+    name: name,
+    email: email || "",
+    level: levelConfig[currentLevel] ? levelConfig[currentLevel].label : currentLevel,
+    totalScore: totalScore,
+    q1: answers[1] || "",
+    q2: Array.isArray(answers[2]) ? answers[2].join(', ') : (answers[2] || ""),
+    q3: answers[3] || "",
+    q4: answers[4] || "",
+    q5: document.getElementById('q5-text').value.trim() || "",
+    q6: answers[6] || "",
+    q7: answers[7] || "",
+    q8: answers[8] || "",
+    q9: Array.isArray(answers[9]) ? answers[9].join(', ') : (answers[9] || ""),
+    q10: answers[10] || ""
+  };
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(() => {
+    console.log("Đã gửi dữ liệu lên Google Sheet thành công!");
+  }).catch(err => console.error("Lỗi gửi dữ liệu: ", err));
+}
+
+// Gọi hàm gửi dữ liệu khi submit form
 function submitEmail() {
   const email = document.getElementById('email-input').value.trim();
   if (email && email.includes('@')) {
     answers['email'] = email;
+    sendToGoogleSheet(email);
     showResult();
   } else {
     document.getElementById('email-input').style.borderColor = '#ff4d6d';
@@ -784,7 +815,7 @@ function drawChartJsRadar(dims) {
                       color: 'rgba(255,255,255,0.08)' // Các vòng nhện
                   },
                   pointLabels: {
-                      color: '#f0f4ff', // Màu chữ trục (Power Automate, v.v.)
+                      color: '#f0f4ff', // Màu chữ trục
                       font: {
                           family: "'Be Vietnam Pro', sans-serif",
                           size: 11,
