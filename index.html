@@ -6,7 +6,6 @@
 <title>Khảo Sát Power Automate & AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <style>
   :root {
     --bg: #0a0e1a;
@@ -453,10 +452,10 @@
       <div class="q-number">CÂU 7 / 10</div>
       <div class="q-text">Khi gặp một tác vụ thủ công mất 2 giờ để làm mỗi ngày, tư duy đầu tiên của Anh/Chị là gì?</div>
       <div class="options" data-type="single">
-        <div class="option" data-val="Làm thủ công" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Làm thủ công vì quen rồi</div>
-        <div class="option" data-val="Nhờ người khác" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nhờ người khác làm giúp</div>
-        <div class="option" data-val="Tìm template/ công cụ" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Tìm template công cụ có sẵn</div>
-        <div class="option" data-val="Tự động hóa" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nghĩ ngay đến tự động hóa</div>
+        <div class="option" data-val="thủ công" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Làm thủ công vì quen rồi</div>
+        <div class="option" data-val="nhờ người khác" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nhờ người khác làm giúp</div>
+        <div class="option" data-val="dùng mẫu/ công cụ" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Tìm template công cụ có sẵn</div>
+        <div class="option" data-val="tự động hóa" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nghĩ ngay đến tự động hóa</div>
       </div>
     </div>
 
@@ -508,9 +507,9 @@
       <h2 style="margin-bottom: 12px; font-size: 1.6rem; font-weight: 700;">Nhận Kết Quả Qua Email</h2>
       <p style="color: var(--text-muted); margin-bottom: 30px;">Nhận bản tóm tắt lộ trình phát triển cá nhân của bạn.</p>
       <input class="email-input" type="email" id="email-input" placeholder="Địa chỉ email của bạn..." style="margin-bottom: 15px;">
-      <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="submitEmail()">Gửi Kết Quả Cho Tôi ✉️</button>
       
-      <span class="skip-link" onclick="sendToGoogleSheet(''); showResult()">Bỏ qua, xem kết quả ngay</span>
+      <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="processAndSubmit(true)">Gửi Kết Quả Cho Tôi ✉️</button>
+      <span class="skip-link" onclick="processAndSubmit(false)">Bỏ qua, xem kết quả ngay</span>
     </div>
   </div>
 
@@ -558,18 +557,19 @@
 
 <script>
 // URL Ứng dụng Web App của bạn
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDwV7ioS0JozI7Uqv28TituDIfjLoFguqcqHCIXjzCE0TCdgXojjKCQOHsUcbAOmzj/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpML-_2TiyYXFscVSJKjbTjpAQvpNWx6XKSd-zb8DzsL0Srisc3yC0vLhmGslFjBBG/exec";
 
 let currentLevel = '';
 let currentQ = 0;
 let answers = {};
-let radarChartInstance = null; // Biến lưu trữ đối tượng Chart
+let radarChartInstance = null; 
 
+// Loại bỏ emoji khỏi label để không lỗi font ở backend
 const levelConfig = {
-  employee: { label:'🌱 NHÂN VIÊN', pillBg:'rgba(16,185,129,0.15)', pillColor:'#10b981' },
-  leader: { label:'⚙️ TRƯỞNG NHÓM', pillBg:'rgba(0,212,255,0.15)', pillColor:'#00d4ff' },
-  manager: { label:'🚀 TRƯỞNG PHÒNG', pillBg:'rgba(167,139,250,0.15)', pillColor:'#a78bfa' },
-  executive: { label:'🏆 QUẢN LÝ CẤP CAO', pillBg:'rgba(255,165,0,0.15)', pillColor:'#ff9800' },
+  employee: { label:'NHÂN VIÊN', pillBg:'rgba(16,185,129,0.15)', pillColor:'#10b981' },
+  leader: { label:'TRƯỞNG NHÓM', pillBg:'rgba(0,212,255,0.15)', pillColor:'#00d4ff' },
+  manager: { label:'TRƯỞNG PHÒNG', pillBg:'rgba(167,139,250,0.15)', pillColor:'#a78bfa' },
+  executive: { label:'QUẢN LÝ CẤP CAO', pillBg:'rgba(255,165,0,0.15)', pillColor:'#ff9800' },
 };
 
 function startSurvey(level) {
@@ -580,7 +580,9 @@ function startSurvey(level) {
   document.getElementById('survey-section').style.display = 'block';
   
   const pill = document.getElementById('level-pill');
-  pill.textContent = levelConfig[level].label;
+  // Chèn lại emoji ở giao diện cho đẹp
+  const emojis = { employee:'🌱 ', leader:'⚙️ ', manager:'🚀 ', executive:'🏆 ' };
+  pill.textContent = emojis[level] + levelConfig[level].label;
   pill.style.background = levelConfig[level].pillBg;
   pill.style.color = levelConfig[level].pillColor;
   
@@ -665,20 +667,50 @@ function prevQ() {
   }
 }
 
-// ---- HÀM GỬI DỮ LIỆU LÊN GOOGLE SHEET (ĐÃ CẬP NHẬT) ----
+// Logic: Vẽ biểu đồ trước, đợi 0.5s để xuất ảnh rồi mới gửi API
+function processAndSubmit(withEmail) {
+  let email = "";
+  if (withEmail) {
+    email = document.getElementById('email-input').value.trim();
+    if (!email || !email.includes('@')) {
+      document.getElementById('email-input').style.borderColor = '#ff4d6d';
+      setTimeout(() => document.getElementById('email-input').style.borderColor = '', 600);
+      return;
+    }
+    answers['email'] = email;
+  } else {
+    answers['email'] = "";
+  }
+  
+  showResult(); // Vẽ giao diện ngay lập tức
+  
+  // Chờ biểu đồ render xong mới chụp ảnh canvas
+  setTimeout(() => {
+    sendToGoogleSheet(answers['email']);
+  }, 500);
+}
+
 function sendToGoogleSheet(email) {
   if (!SCRIPT_URL) return;
 
-  const dims = calcRadarScores(); // Lấy điểm 6 kỹ năng
+  const dims = calcRadarScores();
   const totalScore = Math.round(Object.values(dims).reduce((a, b) => a + b, 0) / 6);
   const name = document.getElementById('name-input').value.trim() || 'Ẩn danh';
+
+  // Lấy dữ liệu ảnh Base64 từ biểu đồ
+  const canvas = document.getElementById('radarCanvas');
+  let radarImageBase64 = "";
+  if (canvas) {
+      radarImageBase64 = canvas.toDataURL('image/png').split(',')[1]; 
+  }
 
   const payload = {
     name: name,
     email: email || "",
     level: levelConfig[currentLevel] ? levelConfig[currentLevel].label : currentLevel,
     totalScore: totalScore,
-    dims: dims, // THÊM DÒNG NÀY: Gửi kèm điểm chi tiết 6 kỹ năng
+    dims: dims,
+    radarImage: radarImageBase64, // Gửi ảnh đính kèm
     q1: answers[1] || "",
     q2: Array.isArray(answers[2]) ? answers[2].join(', ') : (answers[2] || ""),
     q3: answers[3] || "",
@@ -697,48 +729,23 @@ function sendToGoogleSheet(email) {
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   }).then(() => {
-    console.log("Đã gửi dữ liệu lên Google Sheet thành công!");
+    console.log("Đã gửi dữ liệu (kèm ảnh) lên Google Sheet thành công!");
   }).catch(err => console.error("Lỗi gửi dữ liệu: ", err));
-}
-
-// Gọi hàm gửi dữ liệu khi submit form
-function submitEmail() {
-  const email = document.getElementById('email-input').value.trim();
-  if (email && email.includes('@')) {
-    answers['email'] = email;
-    sendToGoogleSheet(email);
-    showResult();
-  } else {
-    document.getElementById('email-input').style.borderColor = '#ff4d6d';
-    setTimeout(() => document.getElementById('email-input').style.borderColor = '', 600);
-  }
 }
 
 function calcRadarScores() {
   const dims = {};
-  
-  // 1. Power Automate (Q1 + Q4)
   const q1v = {'1':0,'2':20,'3':50,'4':80,'5':100};
   const q4v = {no:0, heard:20, tried:45, basic:70, advanced:100};
   dims['Power Automate'] = Math.round(((q1v[answers[1]]||0) + (q4v[answers[4]]||0)) / 2);
-
-  // 2. Tần suất AI (Q3)
   const q3v = {never:0, rare:25, weekly:55, daily:80, always:100};
   dims['Tần suất AI'] = q3v[answers[3]] || 0;
-
-  // 3. Đa dạng công cụ AI (Q2)
   const q2 = answers[2] || [];
   dims['Đa dạng AI'] = q2.includes('none') ? 0 : Math.min(q2.length * 25, 100);
-
-  // 4. Tư duy Automation (Q7)
   const q7v = {a:10, b:25, c:55, d:100};
   dims['Tư duy Automation'] = q7v[answers[7]] || 0;
-
-  // 5. Kết hợp AI + Automation (Q6)
   const q6v = {no:0, thinking:30, tried:60, yes:100};
   dims['AI × Automation'] = q6v[answers[6]] || 0;
-
-  // 6. Prompt Mastery (Q10)
   const q10v = {no_know:0, no_use:30, sometimes:65, always:100};
   dims['Prompt Mastery'] = q10v[answers[10]] || 0;
 
@@ -750,11 +757,11 @@ function showResult() {
   document.getElementById('result-section').style.display = 'block';
   
   const name = document.getElementById('name-input').value.trim() || 'Ẩn danh';
-  document.getElementById('result-name-display').textContent = `👤 ${name} | ${levelConfig[currentLevel].label}`;
+  // Chèn lại emoji ở giao diện kết quả
+  const emojis = { employee:'🌱 ', leader:'⚙️ ', manager:'🚀 ', executive:'🏆 ' };
+  document.getElementById('result-name-display').textContent = `👤 ${name} | ${emojis[currentLevel] + levelConfig[currentLevel].label}`;
   
   const dims = calcRadarScores();
-  
-  // Tổng điểm
   const totalScore = Math.round(Object.values(dims).reduce((a, b) => a + b, 0) / 6);
   document.getElementById('score-num').textContent = totalScore;
 
@@ -765,24 +772,32 @@ function showResult() {
     fill.style.stroke = totalScore >= 70 ? '#10b981' : totalScore >= 40 ? '#00d4ff' : '#f59e0b';
   }, 100);
 
-  // Vẽ biểu đồ bằng Chart.js
   drawChartJsRadar(dims);
   buildLegend(dims);
   buildAnswerSummary();
 }
+
+// Plugin tô màu nền tối cho Canvas (để ảnh email không bị trong suốt)
+const customCanvasBackgroundColor = {
+  id: 'customCanvasBackgroundColor',
+  beforeDraw: (chart, args, options) => {
+    const {ctx} = chart;
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.fillStyle = options.color || '#111827'; 
+    ctx.fillRect(0, 0, chart.width, chart.height);
+    ctx.restore();
+  }
+};
 
 function drawChartJsRadar(dims) {
   const canvas = document.getElementById('radarCanvas');
   const labels = Object.keys(dims);
   const dataValues = Object.values(dims);
 
-  // Xóa chart cũ nếu người dùng làm lại khảo sát để không bị lỗi đè canvas
   if (radarChartInstance) {
       radarChartInstance.destroy();
   }
-
-  // Khởi tạo ChartDataLabels plugin
-  Chart.register(ChartDataLabels);
 
   const config = {
       type: 'radar',
@@ -791,57 +806,38 @@ function drawChartJsRadar(dims) {
           datasets: [{
               label: 'Điểm kỹ năng',
               data: dataValues,
-              backgroundColor: 'rgba(0, 212, 255, 0.2)', // Màu nền
-              borderColor: '#00d4ff', // Màu viền
+              backgroundColor: 'rgba(0, 212, 255, 0.2)', 
+              borderColor: '#00d4ff', 
               pointBackgroundColor: '#00d4ff',
               pointBorderColor: '#00d4ff',
               pointHoverBackgroundColor: '#fff',
               pointHoverBorderColor: '#00d4ff',
               borderWidth: 2,
-              pointRadius: 4 // Kích thước chấm
+              pointRadius: 4 
           }]
       },
+      plugins: [customCanvasBackgroundColor],
       options: {
+          animation: false, // Tắt animation để chụp ảnh được ngay lập tức
           responsive: true,
-          maintainAspectRatio: false, // Để canvas co giãn theo container cha
-          layout: {
-              padding: 24 // Dành không gian để chữ không bị cắt ở góc
-          },
+          maintainAspectRatio: false, 
+          layout: { padding: 24 },
           scales: {
               r: {
-                  angleLines: {
-                      color: 'rgba(255,255,255,0.05)' // Các đường kẻ góc
-                  },
-                  grid: {
-                      color: 'rgba(255,255,255,0.08)' // Các vòng nhện
-                  },
+                  angleLines: { color: 'rgba(255,255,255,0.05)' },
+                  grid: { color: 'rgba(255,255,255,0.08)' },
                   pointLabels: {
-                      color: '#f0f4ff', // Màu chữ trục
-                      font: {
-                          family: "'Be Vietnam Pro', sans-serif",
-                          size: 11,
-                          weight: 'bold'
-                      },
+                      color: '#f0f4ff', 
+                      font: { family: "'Be Vietnam Pro', sans-serif", size: 11, weight: 'bold' },
                       padding: 10
                   },
-                  ticks: {
-                      display: false, // Ẩn các số 20, 40, 60... ở giữa
-                      min: 0,
-                      max: 100,
-                      stepSize: 20
-                  }
+                  ticks: { display: false, min: 0, max: 100, stepSize: 20 }
               }
           },
           plugins: {
-              legend: {
-                  display: false // Ẩn legend mặc định
-              },
-              tooltip: {
-                  enabled: false // Tắt popup khi hover
-              },
-              datalabels: {
-                  display: false // <--- THÊM DÒNG NÀY ĐỂ ẨN HOÀN TOÀN CÁC CON SỐ
-              }
+              legend: { display: false },
+              tooltip: { enabled: false },
+              customCanvasBackgroundColor: { color: '#111827' } // Màu nền lúc xuất ảnh
           }
       }
   };
