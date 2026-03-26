@@ -398,7 +398,7 @@
 
     <div class="q-card" data-q="2">
       <div class="q-number">CÂU 2 / 10</div>
-      <div class="q-text">Anh/Chị đã từng sử dụng các công cụ AI nào dưới đây để hỗ trợ công việc?</div>
+      <div class="q-text">Anh/Chị đã từng sử dụng các công cụ AI nào dưới đây để hỗ trợ công việc?(chọn nhiều đáp án)</div>
       <div class="options" data-type="multi">
         <div class="option multi" data-val="chatgpt" onclick="selectOpt(this,2)"><span class="opt-dot"></span>ChatGPT</div>
         <div class="option multi" data-val="copilot" onclick="selectOpt(this,2)"><span class="opt-dot"></span>Microsoft Copilot</div>
@@ -453,10 +453,10 @@
       <div class="q-number">CÂU 7 / 10</div>
       <div class="q-text">Khi gặp một tác vụ thủ công mất 2 giờ để làm mỗi ngày, tư duy đầu tiên của Anh/Chị là gì?</div>
       <div class="options" data-type="single">
-        <div class="option" data-val="a" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Làm thủ công vì quen rồi</div>
-        <div class="option" data-val="b" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nhờ người khác làm giúp</div>
-        <div class="option" data-val="c" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Tìm template công cụ có sẵn</div>
-        <div class="option" data-val="d" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nghĩ ngay đến tự động hóa</div>
+        <div class="option" data-val="Làm thủ công" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Làm thủ công vì quen rồi</div>
+        <div class="option" data-val="Nhờ người khác" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nhờ người khác làm giúp</div>
+        <div class="option" data-val="Tìm template/ công cụ" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Tìm template công cụ có sẵn</div>
+        <div class="option" data-val="Tự động hóa" onclick="selectOpt(this,7)"><span class="opt-dot"></span>Nghĩ ngay đến tự động hóa</div>
       </div>
     </div>
 
@@ -474,7 +474,7 @@
 
     <div class="q-card" data-q="9">
       <div class="q-number">CÂU 9 / 10</div>
-      <div class="q-text">Anh/Chị đã dùng AI cho những việc nào?</div>
+      <div class="q-text">Anh/Chị đã dùng AI cho những việc nào?(chọn nhiều đáp án)</div>
       <div class="options" data-type="multi">
         <div class="option multi" data-val="write" onclick="selectOpt(this,9)"><span class="opt-dot"></span>Viết email / nội dung</div>
         <div class="option multi" data-val="data" onclick="selectOpt(this,9)"><span class="opt-dot"></span>Phân tích dữ liệu / Excel</div>
@@ -534,7 +534,7 @@
     </div>
 
     <div class="radar-wrap">
-      <h3>// BIỂU ĐỒ KỸ NĂNG</h3>
+      <h3>BIỂU ĐỒ KỸ NĂNG</h3>
       <div class="radar-container">
         <div class="radar-svg-wrap">
           <canvas id="radarCanvas"></canvas>
@@ -544,7 +544,7 @@
     </div>
 
     <div class="answer-summary">
-      <h3>// TÓM TẮT CÂU TRẢ LỜI</h3>
+      <h3>TÓM TẮT CÂU TRẢ LỜI</h3>
       <div id="answer-list"></div>
     </div>
 
@@ -558,7 +558,7 @@
 
 <script>
 // URL Ứng dụng Web App của bạn
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlqPT-IR855qStQh9QKm7vdz3l0nGBY3xvNjMMEmOXaa_zat4t8nSP4VB7lgTzix3q/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDwV7ioS0JozI7Uqv28TituDIfjLoFguqcqHCIXjzCE0TCdgXojjKCQOHsUcbAOmzj/exec";
 
 let currentLevel = '';
 let currentQ = 0;
@@ -665,11 +665,11 @@ function prevQ() {
   }
 }
 
-// ---- HÀM GỬI DỮ LIỆU LÊN GOOGLE SHEET ----
+// ---- HÀM GỬI DỮ LIỆU LÊN GOOGLE SHEET (ĐÃ CẬP NHẬT) ----
 function sendToGoogleSheet(email) {
   if (!SCRIPT_URL) return;
 
-  const dims = calcRadarScores();
+  const dims = calcRadarScores(); // Lấy điểm 6 kỹ năng
   const totalScore = Math.round(Object.values(dims).reduce((a, b) => a + b, 0) / 6);
   const name = document.getElementById('name-input').value.trim() || 'Ẩn danh';
 
@@ -678,6 +678,7 @@ function sendToGoogleSheet(email) {
     email: email || "",
     level: levelConfig[currentLevel] ? levelConfig[currentLevel].label : currentLevel,
     totalScore: totalScore,
+    dims: dims, // THÊM DÒNG NÀY: Gửi kèm điểm chi tiết 6 kỹ năng
     q1: answers[1] || "",
     q2: Array.isArray(answers[2]) ? answers[2].join(', ') : (answers[2] || ""),
     q3: answers[3] || "",
@@ -833,23 +834,13 @@ function drawChartJsRadar(dims) {
           },
           plugins: {
               legend: {
-                  display: false // Ẩn legend mặc định để dùng cái tự thiết kế ở dưới
+                  display: false // Ẩn legend mặc định
               },
               tooltip: {
-                  enabled: false // Tắt hiệu ứng hover hiển thị popup
+                  enabled: false // Tắt popup khi hover
               },
               datalabels: {
-                  color: '#00d4ff', // Chữ số màu xanh
-                  font: {
-                      family: "'Space Mono', monospace",
-                      weight: 'bold',
-                      size: 11
-                  },
-                  align: 'end',
-                  anchor: 'end',
-                  formatter: function(value) {
-                      return value; // Trả về số nguyên
-                  }
+                  display: false // <--- THÊM DÒNG NÀY ĐỂ ẨN HOÀN TOÀN CÁC CON SỐ
               }
           }
       }
